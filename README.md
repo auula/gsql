@@ -1,3 +1,3 @@
 # GSQL
 
-GSQL is a structured query languages code builder for golang.
+GSQL is a structured query language code builder for golang.
