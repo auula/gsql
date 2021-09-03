@@ -1,4 +1,4 @@
-package verb
+package syntax
 
 type SortType int8
 
@@ -7,15 +7,15 @@ const (
 	ASC
 )
 
-// Selecter select statement trait
-// Exmaple:
-// gsql.Select(user.id,user.name).Where(user.id," > ?",10).From("").Build().
+// Selecter  select statement trait
+// Example:
+// sql.Select(user.id,user.name).Where(user.id," > ?",10).From("").Build().
 // From("") is empty use model structured name.
 type Selecter interface {
 	Builder
 	Filter(filter Filter) Selecter
 	Distinct() Selecter
-	Select() Selecter
+	// Select() Selecter
 	Where() Selecter
 	From() Selecter
 }

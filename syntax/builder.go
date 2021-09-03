@@ -1,4 +1,4 @@
-package verb
+package syntax
 
 // Builder generate structured query language code string
 type Builder interface {
