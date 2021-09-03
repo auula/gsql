@@ -7,9 +7,12 @@ import (
 
 func TestSelectString(t *testing.T) {
 
-	s := gsql.Select("name", "age", "money")
+	err, s := gsql.Select("name", "age", "money").Distinct().Build()
+	if err != nil {
+		t.Log(err)
+	}
 
-	t.Log(s.(*gsql.SqlSelect).Buf())
+	t.Log(s)
 }
 
 func TestSelectTag(t *testing.T) {

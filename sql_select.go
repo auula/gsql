@@ -7,9 +7,10 @@ import (
 )
 
 type SqlSelect struct {
-	verb   map[string][]byte
-	fields []interface{}
-	buf    *strings.Builder
+	verb     map[string][]byte
+	fields   []interface{}
+	buf      *strings.Builder
+	distinct bool
 }
 
 // Select sql.Select(user.id,user.name)
@@ -19,8 +20,6 @@ func Select(values ...interface{}) syntax.Selecter {
 		verb: make(map[string][]byte, 10),
 		buf:  new(strings.Builder),
 	}
-
-	s.buf.WriteString("SELECT ")
 
 	if len(values) == 1 {
 		ty := reflect.TypeOf(values[0])
@@ -57,6 +56,7 @@ func (sql *SqlSelect) Filter(filter syntax.Filter) syntax.Selecter {
 }
 
 func (sql *SqlSelect) Distinct() syntax.Selecter {
+	sql.distinct = true
 	return sql
 }
 
@@ -69,5 +69,16 @@ func (sql *SqlSelect) From() syntax.Selecter {
 }
 
 func (sql *SqlSelect) Build() (error, string) {
-	return nil, ""
+	oldBuf := sql.buf.String()
+	newBuf := new(strings.Builder)
+	if sql.distinct {
+		newBuf.WriteString("SELECT DISTINCT ")
+		newBuf.WriteString(oldBuf)
+		sql.buf = newBuf
+		return nil, sql.buf.String()
+	}
+	newBuf.WriteString("SELECT ")
+	newBuf.WriteString(oldBuf)
+	sql.buf = newBuf
+	return nil, sql.buf.String()
 }
