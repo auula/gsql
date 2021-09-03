@@ -17,7 +17,7 @@ type Selecter interface {
 	Distinct() Selecter
 	// Select() Selecter
 	Where() Selecter
-	From() Selecter
+	From(tab string) Selecter
 }
 
 type Filter interface {

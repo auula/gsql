@@ -7,10 +7,10 @@ import (
 )
 
 type SqlSelect struct {
-	verb     map[string][]byte
-	fields   []interface{}
-	buf      *strings.Builder
-	distinct bool
+	verb      map[string][]byte
+	tableName string
+	buf       *strings.Builder
+	distinct  bool
 }
 
 // Select sql.Select(user.id,user.name)
@@ -29,6 +29,9 @@ func Select(values ...interface{}) syntax.Selecter {
 				break
 			}
 			s.buf.WriteString(", ")
+		}
+		if s.tableName == "" {
+			s.tableName = ty.Name()
 		}
 		return s
 	}
@@ -64,7 +67,10 @@ func (sql *SqlSelect) Where() syntax.Selecter {
 	return sql
 }
 
-func (sql *SqlSelect) From() syntax.Selecter {
+func (sql *SqlSelect) From(tab string) syntax.Selecter {
+	if sql.tableName == "" || tab != "" {
+		sql.tableName = tab
+	}
 	return sql
 }
 
@@ -75,10 +81,14 @@ func (sql *SqlSelect) Build() (error, string) {
 		newBuf.WriteString("SELECT DISTINCT ")
 		newBuf.WriteString(oldBuf)
 		sql.buf = newBuf
+		sql.buf.WriteString(" FROM ")
+		sql.buf.WriteString(sql.tableName)
 		return nil, sql.buf.String()
 	}
 	newBuf.WriteString("SELECT ")
 	newBuf.WriteString(oldBuf)
 	sql.buf = newBuf
+	sql.buf.WriteString(" FROM ")
+	sql.buf.WriteString(sql.tableName)
 	return nil, sql.buf.String()
 }

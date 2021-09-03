@@ -7,7 +7,7 @@ import (
 
 func TestSelectString(t *testing.T) {
 
-	err, s := gsql.Select("name", "age", "money").Distinct().Build()
+	err, s := gsql.Select("name", "age", "money").Distinct().From("user_info").Build()
 	if err != nil {
 		t.Log(err)
 	}
