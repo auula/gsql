@@ -13,6 +13,7 @@ const (
 // From("") is empty use model structured name.
 type Selecter interface {
 	Builder
+	Filter(filter Filter) Selecter
 	Distinct() Selecter
 	Select() Selecter
 	Where() Selecter
