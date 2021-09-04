@@ -7,17 +7,22 @@ const (
 	ASC
 )
 
-// Selecter  select statement trait
+// Select statement trait
 // Example:
-// sql.Select(user.id,user.name).Where(user.id," > ?",10).From("").Build().
+// sql.Select(user.id,user.name).Where(user.id," > ?",10).From("").Build().
 // From("") is empty use model structured name.
-type Selecter interface {
+type Select interface {
 	Builder
-	Filter(filter Filter) Selecter
-	Distinct() Selecter
-	// Select() Selecter
-	Where() Selecter
-	From(tab string) Selecter
+	Where
+	//Distinct() Select
+}
+
+type Form interface {
+	From(tab string) Select
+}
+
+type Where interface {
+	Where(sql string, v ...interface{}) Filter
 }
 
 type Filter interface {

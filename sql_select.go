@@ -1,24 +1,34 @@
 package gsql
 
 import (
-	"github.com/auula/gsql/syntax"
+	"errors"
+	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/auula/gsql/syntax"
 )
 
 type SqlSelect struct {
-	verb      map[string][]byte
 	tableName string
 	buf       *strings.Builder
 	distinct  bool
+	Err       error
+}
+
+func (sql *SqlSelect) Limit(x int, y int) syntax.Filter {
+	panic("implement me")
+}
+
+func (sql *SqlSelect) Order(field interface{}, sort syntax.SortType) syntax.Filter {
+	panic("implement me")
 }
 
 // Select sql.Select(user.id,user.name)
-func Select(values ...interface{}) syntax.Selecter {
+func Select(values ...interface{}) syntax.Form {
 
 	s := &SqlSelect{
-		verb: make(map[string][]byte, 10),
-		buf:  new(strings.Builder),
+		buf: new(strings.Builder),
 	}
 
 	if len(values) == 1 {
@@ -48,26 +58,39 @@ func Select(values ...interface{}) syntax.Selecter {
 			continue
 		}
 	}
-
 	return s
 }
 func (sql *SqlSelect) Buf() *strings.Builder {
 	return sql.buf
 }
-func (sql *SqlSelect) Filter(filter syntax.Filter) syntax.Selecter {
-	return sql
-}
 
-func (sql *SqlSelect) Distinct() syntax.Selecter {
+func (sql *SqlSelect) Distinct() syntax.Select {
 	sql.distinct = true
+	return nil
+}
+
+// Where money >= 100 "money > #?" 100
+func (sql *SqlSelect) Where(s string, v ...interface{}) syntax.Filter {
+
+	buf := new(strings.Builder)
+	if len(v) != strings.Count(s, "?") {
+		sql.Err = fmt.Errorf("missing parameters: %w", errors.New("where syntax lack of conditions"))
+	}
+	buf.WriteString(" WHERE ")
+	for _, value := range v {
+		switch value.(type) {
+		case string:
+			buf.WriteString(strings.Replace(s, "?", fmt.Sprintf("'%s'", value.(string)), -1))
+			// 数字类型 时间类型 浮点数类型
+		default:
+			continue
+		}
+	}
+	sql.buf.WriteString(buf.String())
 	return sql
 }
 
-func (sql *SqlSelect) Where() syntax.Selecter {
-	return sql
-}
-
-func (sql *SqlSelect) From(tab string) syntax.Selecter {
+func (sql *SqlSelect) From(tab string) syntax.Select {
 	if sql.tableName == "" || tab != "" {
 		sql.tableName = tab
 	}
@@ -81,9 +104,6 @@ func (sql *SqlSelect) Build() (error, string) {
 		newBuf.WriteString("SELECT DISTINCT ")
 		newBuf.WriteString(oldBuf)
 		sql.buf = newBuf
-		sql.buf.WriteString(" FROM ")
-		sql.buf.WriteString(sql.tableName)
-		return nil, sql.buf.String()
 	}
 	newBuf.WriteString("SELECT ")
 	newBuf.WriteString(oldBuf)
