@@ -75,6 +75,7 @@ func (sql *SqlSelect) Where(s string, v ...interface{}) syntax.Filter {
 	buf := new(strings.Builder)
 	if len(v) != strings.Count(s, "?") {
 		sql.Err = fmt.Errorf("missing parameters: %w", errors.New("where syntax lack of conditions"))
+		return sql
 	}
 	buf.WriteString(" WHERE ")
 	for _, value := range v {
@@ -110,5 +111,5 @@ func (sql *SqlSelect) Build() (error, string) {
 	sql.buf = newBuf
 	sql.buf.WriteString(" FROM ")
 	sql.buf.WriteString(sql.tableName)
-	return nil, sql.buf.String()
+	return sql.Err, sql.buf.String()
 }

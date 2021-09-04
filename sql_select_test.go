@@ -7,11 +7,11 @@ import (
 
 func TestSelectString(t *testing.T) {
 
-	err, s := gsql.Select("name", "age", "money").From("user_info").Where("money >= ?", "100").Build()
-	if err != nil {
-		t.Log(err)
-	}
+	err, s := gsql.Select("name", "age", "money").
+		From("user_info").Where("money >= ?", "100").
+		Build()
 
+	t.Log(err)
 	t.Log(s)
 }
 
@@ -22,14 +22,17 @@ func TestSelectTag(t *testing.T) {
 		Age  int    `json:"age"`
 	}
 
-	s := gsql.Select(UserInfo{})
-
-	t.Log(s.(*gsql.SqlSelect).Buf())
+	err, s := gsql.Select(UserInfo{}).From("user_info").Where("money >= ?", "100").Build()
+	t.Log(err)
+	t.Log(s)
 }
 
 func TestSelectMix(t *testing.T) {
 
-	s := gsql.Select("name", 3.1415827, "age", 112, "money")
+	err, s := gsql.Select("name", 3.1415827, "age", 112, "money").
+		From("user_info").
+		Where("money >= ?", "100").Build()
 
-	t.Log(s.(*gsql.SqlSelect).Buf())
+	t.Log(err)
+	t.Log(s)
 }
