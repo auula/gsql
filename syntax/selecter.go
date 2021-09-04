@@ -50,8 +50,10 @@ func Alias(model interface{}, asmap map[string]string) []string {
 	for i := 0; i < ty.NumField(); i++ {
 		if v, ok := asmap[ty.Field(i).Tag.Get("json")]; ok {
 			values = append(values, fmt.Sprintf("%s AS '%s'", ty.Field(i).Tag.Get("json"), v))
+		} else {
+			values = append(values, ty.Field(i).Tag.Get("json"))
 		}
-		values = append(values, ty.Field(i).Tag.Get("json"))
+
 	}
 	return values
 }

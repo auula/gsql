@@ -68,7 +68,7 @@ func TestSelectAlias(t *testing.T) {
 		Money float64 `json:"money"`
 	}
 
-	// SELECT name AS '用户名', name, age, money AS '金钱', money FROM user_info WHERE name = 'Leon Ding'
+	// SELECT name AS '用户名', age, money AS '金钱' FROM user_info WHERE name = 'Leon Ding'
 	sql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
 		"name":  "用户名",
 		"money": "金钱",
