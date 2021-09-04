@@ -91,4 +91,14 @@ func TestSelectAlias(t *testing.T) {
 		Where("name = ?", "Leon Ding").String()
 
 	t.Log(sql)
+
+	syntaxSql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
+		"name":  "用户名",
+		"money": "金钱",
+	})).
+		From("user_info")
+
+	sql = syntax.Limit(syntaxSql, true, 1, 3).String()
+
+	t.Log(sql)
 }

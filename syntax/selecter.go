@@ -65,6 +65,7 @@ func Offset(index, row int) string {
 func Limit(sql Select, offset bool, index, row int) Builder {
 	if offset {
 		sql.Buf().WriteString(Offset(index, row))
+		return sql
 	}
 	sql.Buf().WriteString(fmt.Sprintf(" LIMIT %v,%v", index, row))
 	return sql
