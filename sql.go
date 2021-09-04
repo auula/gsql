@@ -15,8 +15,13 @@ type SqlSelect struct {
 	Err      error
 }
 
-func (sql *SqlSelect) Limit(x int, y int) syntax.Filter {
-	panic("implement me")
+func (sql *SqlSelect) Limit(offset bool, index int, row int) syntax.Filter {
+	if offset {
+		sql.buf.WriteString(syntax.Offset(index, row))
+		return sql
+	}
+	sql.buf.WriteString(fmt.Sprintf(" LIMIT %v,%v", index, row))
+	return sql
 }
 
 func (sql *SqlSelect) Order(field interface{}, sort syntax.SortType) syntax.Filter {
@@ -107,7 +112,7 @@ func (sql *SqlSelect) Where(s string, v ...interface{}) syntax.Filter {
 	return sql
 }
 
-func (sql *SqlSelect) From(tab string) syntax.Select {
+func (sql *SqlSelect) From(tab string) syntax.Filter {
 	sql.buf.WriteString(" FROM ")
 	sql.buf.WriteString(tab)
 	return sql

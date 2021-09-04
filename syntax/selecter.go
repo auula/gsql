@@ -18,12 +18,11 @@ const (
 // From("") is empty use model structured name.
 type Select interface {
 	Builder
-	Where
 	//Distinct() Select
 }
 
 type Form interface {
-	From(tab string) Select
+	From(tab string) Filter
 }
 
 type Where interface {
@@ -31,8 +30,9 @@ type Where interface {
 }
 
 type Filter interface {
+	Where
 	Builder
-	Limit(x int, y int) Filter
+	Limit(offset bool, index int, row int) Filter
 	Order(field interface{}, sort SortType) Filter
 }
 
@@ -44,11 +44,11 @@ func As(field string, asName string) string {
 	return fmt.Sprintf("%s AS '%s'", field, asName)
 }
 
-func Alias(model interface{}, asmap map[string]string) []string {
+func Alias(model interface{}, aliasMap map[string]string) []string {
 	values := make([]string, 0)
 	ty := reflect.TypeOf(model)
 	for i := 0; i < ty.NumField(); i++ {
-		if v, ok := asmap[ty.Field(i).Tag.Get("json")]; ok {
+		if v, ok := aliasMap[ty.Field(i).Tag.Get("json")]; ok {
 			values = append(values, fmt.Sprintf("%s AS '%s'", ty.Field(i).Tag.Get("json"), v))
 		} else {
 			values = append(values, ty.Field(i).Tag.Get("json"))
@@ -56,4 +56,16 @@ func Alias(model interface{}, asmap map[string]string) []string {
 
 	}
 	return values
+}
+
+func Offset(index, row int) string {
+	return fmt.Sprintf(" LIMIT %v OFFSET %v", row, index)
+}
+
+func Limit(sql Select, offset bool, index, row int) Builder {
+	if offset {
+		sql.Buf().WriteString(Offset(index, row))
+	}
+	sql.Buf().WriteString(fmt.Sprintf(" LIMIT %v,%v", index, row))
+	return sql
 }

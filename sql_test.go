@@ -30,8 +30,8 @@ func TestSelectTag(t *testing.T) {
 
 func TestSelectMix(t *testing.T) {
 
-	//sql_select_test.go:36: missing parameters: where syntax lack of conditions
-	//sql_select_test.go:37: SELECT name, age, money FROM user_info
+	//sql_test.go:36: missing parameters: where syntax lack of conditions
+	//sql_test.go:37: SELECT name, age, money FROM user_info
 	err, s := gsql.Select("name", 3.1415827, "age", 112, "money").
 		From("user_info").
 		Where("money >= ?", "100", "1").Build()
@@ -58,6 +58,20 @@ func TestSelectAsName(t *testing.T) {
 		Where("name = ?", "Leon Ding").String()
 
 	t.Log(sql)
+}
+
+func TestSelectFilter(t *testing.T) {
+
+	// offset=true SELECT name, age, money AS '余额' FROM user_info LIMIT 3 OFFSET 1
+	// offset=false SELECT name, age, money AS '余额' FROM user_info LIMIT 1,3
+
+	syntaxSql := gsql.Select("name", "age", syntax.As("money", "余额")).
+		From("user_info")
+
+	// SELECT name, age, money AS '余额' FROM user_info LIMIT 3 OFFSET 1
+	sql := syntax.Limit(syntaxSql, true, 1, 3).String()
+	t.Log(sql)
+
 }
 
 func TestSelectAlias(t *testing.T) {
