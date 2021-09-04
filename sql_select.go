@@ -10,10 +10,9 @@ import (
 )
 
 type SqlSelect struct {
-	tableName string
-	buf       *strings.Builder
-	distinct  bool
-	Err       error
+	buf      *strings.Builder
+	distinct bool
+	Err      error
 }
 
 func (sql *SqlSelect) Limit(x int, y int) syntax.Filter {
@@ -40,9 +39,7 @@ func Select(values ...interface{}) syntax.Form {
 			}
 			s.buf.WriteString(", ")
 		}
-		if s.tableName == "" {
-			s.tableName = ty.Name()
-		}
+
 		return s
 	}
 
@@ -92,10 +89,17 @@ func (sql *SqlSelect) Where(s string, v ...interface{}) syntax.Filter {
 }
 
 func (sql *SqlSelect) From(tab string) syntax.Select {
-	if sql.tableName == "" || tab != "" {
-		sql.tableName = tab
-	}
+	sql.buf.WriteString(" FROM ")
+	sql.buf.WriteString(tab)
 	return sql
+}
+
+func (sql *SqlSelect) String() string {
+	_, s := sql.Build()
+	if sql.Err != nil {
+		return ""
+	}
+	return s
 }
 
 func (sql *SqlSelect) Build() (error, string) {
@@ -109,7 +113,5 @@ func (sql *SqlSelect) Build() (error, string) {
 	newBuf.WriteString("SELECT ")
 	newBuf.WriteString(oldBuf)
 	sql.buf = newBuf
-	sql.buf.WriteString(" FROM ")
-	sql.buf.WriteString(sql.tableName)
 	return sql.Err, sql.buf.String()
 }
