@@ -126,6 +126,10 @@ func (sql *SqlSelect) String() string {
 	return s
 }
 
+func (sql *SqlSelect) Error(err error) {
+	sql.Err = fmt.Errorf("%w", err)
+}
+
 func (sql *SqlSelect) Build() (error, string) {
 	oldBuf := sql.buf.String()
 	newBuf := new(strings.Builder)

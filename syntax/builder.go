@@ -7,4 +7,5 @@ type Builder interface {
 	Build() (error, string)
 	String() string
 	Buf() *strings.Builder
+	Error(err error)
 }

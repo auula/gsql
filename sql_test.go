@@ -96,7 +96,7 @@ func TestSelectAlias(t *testing.T) {
 		"name":  "用户名",
 		"money": "金钱",
 	})).
-		From("user_info")
+		From("user_info").Limit(true, 1, 1)
 
 	sql = syntax.Limit(syntaxSql, true, 1, 3).String()
 

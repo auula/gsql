@@ -1,8 +1,10 @@
 package syntax
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 type SortType int8
@@ -63,6 +65,9 @@ func Offset(index, row int) string {
 }
 
 func Limit(sql Select, offset bool, index, row int) Builder {
+	if strings.Contains(sql.Buf().String(), "LIMIT") {
+		sql.Error(errors.New("limit syntax recurring"))
+	}
 	if offset {
 		sql.Buf().WriteString(Offset(index, row))
 		return sql
