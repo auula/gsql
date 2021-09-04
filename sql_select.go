@@ -57,6 +57,25 @@ func Select(values ...interface{}) syntax.Form {
 	}
 	return s
 }
+
+func SelectAs(values []string) syntax.Form {
+
+	s := &SqlSelect{
+		buf: new(strings.Builder),
+	}
+
+	for i, v := range values {
+
+		s.buf.WriteString(v)
+		if i == len(values)-1 {
+			break
+		}
+		s.buf.WriteString(", ")
+
+	}
+	return s
+}
+
 func (sql *SqlSelect) Buf() *strings.Builder {
 	return sql.buf
 }
