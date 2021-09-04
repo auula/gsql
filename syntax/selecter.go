@@ -65,13 +65,17 @@ func Offset(index, row int) string {
 }
 
 func Limit(sql Select, offset bool, index, row int) Builder {
+
 	if strings.Contains(sql.Buf().String(), "LIMIT") {
 		sql.Error(errors.New("limit syntax recurring"))
+		return sql
 	}
+
 	if offset {
 		sql.Buf().WriteString(Offset(index, row))
 		return sql
 	}
+
 	sql.Buf().WriteString(fmt.Sprintf(" LIMIT %v,%v", index, row))
 	return sql
 }
