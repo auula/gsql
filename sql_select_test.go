@@ -31,7 +31,7 @@ func TestSelectMix(t *testing.T) {
 
 	err, s := gsql.Select("name", 3.1415827, "age", 112, "money").
 		From("user_info").
-		Where("money >= ?", "100").Build()
+		Where("money >= ?", "100", "1").Build()
 
 	t.Log(err)
 	t.Log(s)
