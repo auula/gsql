@@ -24,8 +24,9 @@ func (sql *SqlSelect) Limit(offset bool, index int, row int) syntax.Filter {
 	return sql
 }
 
-func (sql *SqlSelect) Order(field interface{}, sort syntax.SortType) syntax.Filter {
-	panic("implement me")
+func (sql *SqlSelect) OrderBy(row []syntax.OrderRow) syntax.Filter {
+	syntax.OrderBy(sql, row)
+	return sql
 }
 
 // Select sql.Select(user.id,user.name)

@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-type SortType int8
+type SortType string
 
 const (
-	DESC SortType = iota
-	ASC
+	DESC SortType = "DESC"
+	ASC           = "ASC"
 )
 
 // Select statement trait
@@ -35,7 +35,7 @@ type Filter interface {
 	Where
 	Builder
 	Limit(offset bool, index int, row int) Filter
-	Order(field interface{}, sort SortType) Filter
+	OrderBy(row []OrderRow) Filter
 }
 
 type Alias_ interface {
@@ -77,5 +77,22 @@ func Limit(sql Select, offset bool, index, row int) Builder {
 	}
 
 	sql.Buf().WriteString(fmt.Sprintf(" LIMIT %v,%v", index, row))
+	return sql
+}
+
+type OrderRow struct {
+	Field string
+	Sort  SortType
+}
+
+func OrderBy(sql Select, row []OrderRow) Builder {
+	sql.Buf().WriteString(" ORDER BY ")
+	for i, iterm := range row {
+		sql.Buf().WriteString(fmt.Sprintf(" %s %v", iterm.Field, iterm.Sort))
+		if len(row)-1 == i {
+			break
+		}
+		sql.Buf().WriteString(",")
+	}
 	return sql
 }

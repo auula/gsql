@@ -96,7 +96,7 @@ func TestSelectAlias(t *testing.T) {
 		"name":  "用户名",
 		"money": "金钱",
 	})).
-		From("user_info").Limit(true, 1, 1)
+		From("user_info")
 
 	err, s := syntax.Limit(syntaxSql, true, 1, 3).Build()
 
@@ -110,4 +110,25 @@ func TestSelectAlias(t *testing.T) {
 	//--- PASS: TestSelectAlias (0.00s)
 	//PASS
 
+}
+
+func TestSqlSelectOrderBy(t *testing.T) {
+	type UserInfo struct {
+		Name  string  `json:"name"`
+		Age   int     `json:"age"`
+		Money float64 `json:"money"`
+	}
+
+	syntaxSql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
+		"name": "用户名",
+	})).
+		From("user_info")
+
+	// SELECT name AS '用户名', age, money FROM user_info ORDER BY  money DESC, age ASC
+	sql := syntax.OrderBy(syntaxSql, []syntax.OrderRow{
+		{"money", syntax.DESC},
+		{"age", syntax.ASC},
+	}).String()
+
+	t.Log(sql)
 }
