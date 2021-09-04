@@ -82,15 +82,15 @@ func TestSelectAlias(t *testing.T) {
 		Money float64 `json:"money"`
 	}
 
-	// SELECT name AS '用户名', age, money AS '金钱' FROM user_info WHERE name = 'Leon Ding'
 	sql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
 		"name":  "用户名",
 		"money": "金钱",
 	})).
 		From("user_info").
-		Where("name = ?", "Leon Ding").String()
+		Where("name = ?", "Leon Ding")
 
-	t.Log(sql)
+	code := syntax.Limit(sql, true, 1, 3).String()
+	t.Log(code)
 
 	syntaxSql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
 		"name":  "用户名",
@@ -98,7 +98,16 @@ func TestSelectAlias(t *testing.T) {
 	})).
 		From("user_info").Limit(true, 1, 1)
 
-	sql = syntax.Limit(syntaxSql, true, 1, 3).String()
+	err, s := syntax.Limit(syntaxSql, true, 1, 3).Build()
 
-	t.Log(sql)
+	t.Log(err)
+	t.Log(s)
+
+	//=== RUN   TestSelectAlias
+	//sql_test.go:94: SELECT name AS '用户名', age, money AS '金钱' FROM user_info WHERE name = 'Leon Ding' LIMIT 3 OFFSET 1
+	//sql_test.go:104: limit syntax recurring
+	//sql_test.go:105: SELECT name AS '用户名', age, money AS '金钱' FROM user_info LIMIT 1 OFFSET 1
+	//--- PASS: TestSelectAlias (0.00s)
+	//PASS
+
 }
