@@ -29,7 +29,7 @@ func (sql *SqlSelect) OrderBy(row []syntax.OrderRow) syntax.Filter {
 	return sql
 }
 
-// Select sql.Select(user.id,user.name)
+// Select sql.Selector(user.id,user.name)
 func Select(values ...interface{}) syntax.Form {
 
 	s := &SqlSelect{
@@ -86,7 +86,7 @@ func (sql *SqlSelect) Buf() *strings.Builder {
 	return sql.buf
 }
 
-func (sql *SqlSelect) Distinct() syntax.Select {
+func (sql *SqlSelect) Distinct() syntax.Selector {
 	sql.distinct = true
 	return nil
 }

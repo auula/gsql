@@ -1,9 +1,10 @@
 package gsql_test
 
 import (
+	"testing"
+
 	"github.com/auula/gsql"
 	"github.com/auula/gsql/syntax"
-	"testing"
 )
 
 func TestSelectString(t *testing.T) {
@@ -121,14 +122,12 @@ func TestSqlSelectOrderBy(t *testing.T) {
 
 	syntaxSql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
 		"name": "用户名",
-	})).
-		From("user_info")
+	})).From("user_info")
 
 	// SELECT name AS '用户名', age, money FROM user_info ORDER BY  money DESC, age ASC
 	sql := syntax.OrderBy(syntaxSql, []syntax.OrderRow{
 		{"money", syntax.DESC},
 		{"age", syntax.ASC},
 	}).String()
-
 	t.Log(sql)
 }

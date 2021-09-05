@@ -14,13 +14,13 @@ const (
 	ASC           = "ASC"
 )
 
-// Select statement trait
+// Selector statement trait
 // Example:
-// sql.Select(user.id,user.name).Where(user.id," > ?",10).From("").Build().
+// sql.Selector(user.id,user.name).Where(user.id," > ?",10).From("").Build().
 // From("") is empty use model structured name.
-type Select interface {
+type Selector interface {
 	Builder
-	//Distinct() Select
+	//Distinct() Selector
 }
 
 type Form interface {
@@ -64,7 +64,7 @@ func Offset(index, row int) string {
 	return fmt.Sprintf(" LIMIT %v OFFSET %v", row, index)
 }
 
-func Limit(sql Select, offset bool, index, row int) Builder {
+func Limit(sql Selector, offset bool, index, row int) Builder {
 
 	if strings.Contains(sql.Buf().String(), "LIMIT") {
 		sql.Error(errors.New("limit syntax recurring"))
@@ -85,7 +85,7 @@ type OrderRow struct {
 	Sort  SortType
 }
 
-func OrderBy(sql Select, row []OrderRow) Builder {
+func OrderBy(sql Selector, row []OrderRow) Builder {
 	sql.Buf().WriteString(" ORDER BY ")
 	for i, iterm := range row {
 		sql.Buf().WriteString(fmt.Sprintf(" %s %v", iterm.Field, iterm.Sort))
