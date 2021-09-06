@@ -50,10 +50,10 @@ func Alias(model interface{}, aliasMap map[string]string) []string {
 	values := make([]string, 0)
 	ty := reflect.TypeOf(model)
 	for i := 0; i < ty.NumField(); i++ {
-		if v, ok := aliasMap[ty.Field(i).Tag.Get("json")]; ok {
+		if v, ok := aliasMap[ty.Field(i).Tag.Get("sql")]; ok {
 			values = append(values, fmt.Sprintf("%s AS '%s'", ty.Field(i).Tag.Get("json"), v))
 		} else {
-			values = append(values, ty.Field(i).Tag.Get("json"))
+			values = append(values, ty.Field(i).Tag.Get("sql"))
 		}
 
 	}

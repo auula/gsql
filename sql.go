@@ -39,7 +39,7 @@ func Select(values ...interface{}) syntax.Form {
 	if len(values) == 1 {
 		ty := reflect.TypeOf(values[0])
 		for i := 0; i < ty.NumField(); i++ {
-			s.buf.WriteString(ty.Field(i).Tag.Get("json"))
+			s.buf.WriteString(ty.Field(i).Tag.Get("sql"))
 			if i == ty.NumField()-1 {
 				break
 			}

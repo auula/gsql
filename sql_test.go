@@ -131,3 +131,9 @@ func TestSqlSelectOrderBy(t *testing.T) {
 	}).String()
 	t.Log(sql)
 }
+
+func TestCol(t *testing.T) {
+	sql := syntax.Condition(syntax.Col("name").Equal("'Leon Ding'")).
+		AND(syntax.Col("age").Equal(21))
+	t.Log(sql)
+}
