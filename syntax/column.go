@@ -22,7 +22,6 @@ func (c *Column) Equal(value interface{}) Compare {
 }
 
 type Column struct {
-	op    string
 	value string
 }
 
