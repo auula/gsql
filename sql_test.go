@@ -133,7 +133,8 @@ func TestSqlSelectOrderBy(t *testing.T) {
 }
 
 func TestCol(t *testing.T) {
+	// name = 'Leon Ding' AND age = 19
 	sql := syntax.Condition(syntax.Col("name").Equal("'Leon Ding'")).
-		AND(syntax.Col("age").Equal(21))
+		AND(syntax.Col("age").Equal(19))
 	t.Log(sql)
 }

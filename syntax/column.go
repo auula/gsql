@@ -6,16 +6,17 @@ import "fmt"
 //// Col(Col("name").Equal(9)).AND(Col("age").Eq(10))
 
 type Columned interface {
-	OR(column Columned) Columned
-	AND(column Columned) Columned
-	Value() string
+	OR(column Compare) Columned
+	AND(column Compare) Columned
+	String() string
 }
 
 type Compare interface {
-	Equal(value interface{}) *Column
+	String() string
+	Equal(value interface{}) Compare
 }
 
-func (c *Column) Equal(value interface{}) *Column {
+func (c *Column) Equal(value interface{}) Compare {
 	c.value = fmt.Sprintf("%s = %v", c.value, value)
 	return c
 }
@@ -25,23 +26,23 @@ type Column struct {
 	value string
 }
 
-func (c *Column) OR(column Columned) Columned {
-	c.value = fmt.Sprintf("%s OR %s", c.value, column.Value())
+func (c *Column) OR(column Compare) Columned {
+	c.value = fmt.Sprintf("%s OR %s", c.value, column.String())
 	return c
 }
 
-func (c *Column) AND(column Columned) Columned {
-	c.value = fmt.Sprintf("%s AND %s", c.value, column.Value())
+func (c *Column) AND(column Compare) Columned {
+	c.value = fmt.Sprintf("%s AND %s", c.value, column.String())
 	return c
 }
 
-func (c *Column) Value() string {
+func (c *Column) String() string {
 	return c.value
 }
 
-func Condition(value Columned) Columned {
+func Condition(value Compare) Columned {
 	return &Column{
-		value: value.Value(),
+		value: value.String(),
 	}
 }
 
