@@ -1,10 +1,11 @@
 package gsql_test
 
 import (
-	"testing"
-
+	"fmt"
 	"github.com/auula/gsql"
 	"github.com/auula/gsql/syntax"
+	"testing"
+	"time"
 )
 
 func TestSelectString(t *testing.T) {
@@ -143,5 +144,26 @@ func TestIN(t *testing.T) {
 func TestLike(t *testing.T) {
 	// name LIKE '%Di%'
 	sql := syntax.Condition(syntax.Col("name").Like("%Di%")).String()
+	t.Log(sql)
+}
+
+func TestBetween(t *testing.T) {
+
+	// created_at BETWEEN '2021-09-07 16:01:06' AND '2000-01-08 00:00:00' OR age BETWEEN 10 AND 21
+
+	err, left := syntax.Col("created_at").Between([]interface{}{
+		fmt.Sprintf("'%v'", time.Now().Format("2006-01-02 15:04:05")),
+		"'2000-01-08 00:00:00'",
+	})
+
+	err, right := syntax.Col("age").Between([]interface{}{10, 21})
+
+	sql := syntax.Condition(left).OR(right).String()
+
+	if err != nil {
+		t.Log(err)
+		return
+	}
+
 	t.Log(sql)
 }

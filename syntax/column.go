@@ -1,6 +1,7 @@
 package syntax
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -21,8 +22,7 @@ type Compare interface {
 	In(value []string) Compare
 	Like(value string) Compare
 	Equal(value interface{}) Compare
-	Time(value string) Compare
-	Between(value []string) Compare
+	Between(value []interface{}) (error, Compare)
 }
 
 type Column struct {
@@ -75,14 +75,12 @@ func (c *Column) Like(value string) Compare {
 	return c
 }
 
-func (c *Column) Time(value string) Compare {
-	c.value = fmt.Sprintf("%s = %v", c.value, value)
-	return c
-}
-
-func (c *Column) Between(value []string) Compare {
-	c.value = fmt.Sprintf("%s = %v", c.value, value)
-	return c
+func (c *Column) Between(value []interface{}) (error, Compare) {
+	if len(value) < 2 {
+		return errors.New("at least two parameters"), nil
+	}
+	c.value = fmt.Sprintf("%s BETWEEN %v AND %v", c.value, value[0], value[1])
+	return nil, c
 }
 
 func (c *Column) Equal(value interface{}) Compare {
