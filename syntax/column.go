@@ -11,14 +11,15 @@ type Columned interface {
 	String() string
 }
 
+// 这里可以指定一下类型
+
 type Compare interface {
 	String() string
+	In(value interface{}) Compare
+	Like(value interface{}) Compare
 	Equal(value interface{}) Compare
-}
-
-func (c *Column) Equal(value interface{}) Compare {
-	c.value = fmt.Sprintf("%s = %v", c.value, value)
-	return c
+	Time(value string) Compare
+	Between(value []string) Compare
 }
 
 type Column struct {
@@ -45,8 +46,30 @@ func Condition(value Compare) Columned {
 	}
 }
 
+// 这里也是可以的
 func Col(value string) Compare {
 	return &Column{
 		value: value,
 	}
+}
+
+func (c *Column) In(value interface{}) Compare {
+	panic("implement me")
+}
+
+func (c *Column) Like(value interface{}) Compare {
+	panic("implement me")
+}
+
+func (c *Column) Time(value string) Compare {
+	panic("implement me")
+}
+
+func (c *Column) Between(value []string) Compare {
+	panic("implement me")
+}
+
+func (c *Column) Equal(value interface{}) Compare {
+	c.value = fmt.Sprintf("%s = %v", c.value, value)
+	return c
 }

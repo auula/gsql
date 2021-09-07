@@ -53,10 +53,10 @@ func TestSelectToStr(t *testing.T) {
 
 func TestSelectAsName(t *testing.T) {
 
-	// SELECT name, age, money AS '余额' FROM user_info WHERE name = 'Leon Ding'
+	// SELECT name, age, money AS '余额' FROM user_info WHERE name = 'Leon Ding' LIMIT 1
 	sql := gsql.Select("name", "age", syntax.As("money", "余额")).
 		From("user_info").
-		Where("name = ?", "Leon Ding").String()
+		Where("name = ?", "Leon Ding").Limit(1).String()
 
 	t.Log(sql)
 }

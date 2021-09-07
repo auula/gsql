@@ -34,7 +34,7 @@ type Where interface {
 type Filter interface {
 	Where
 	Builder
-	Limit(offset bool, index int, row int) Filter
+	Limit(row int) Filter
 	OrderBy(row []OrderRow) Filter
 }
 
