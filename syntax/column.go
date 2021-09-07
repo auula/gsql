@@ -19,7 +19,7 @@ type Columned interface {
 type Compare interface {
 	String() string
 	In(value []string) Compare
-	Like(value interface{}) Compare
+	Like(value string) Compare
 	Equal(value interface{}) Compare
 	Time(value string) Compare
 	Between(value []string) Compare
@@ -50,6 +50,7 @@ func Condition(value Compare) Columned {
 }
 
 // 这里也是可以的
+
 func Col(value string) Compare {
 	return &Column{
 		value: value,
@@ -69,8 +70,8 @@ func (c *Column) In(value []string) Compare {
 	return c
 }
 
-func (c *Column) Like(value interface{}) Compare {
-	c.value = fmt.Sprintf("%s = %v", c.value, value)
+func (c *Column) Like(value string) Compare {
+	c.value = fmt.Sprintf("%s LIKE '%v'", c.value, value)
 	return c
 }
 

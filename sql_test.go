@@ -143,3 +143,9 @@ func TestIN(t *testing.T) {
 	sql := syntax.Condition(syntax.Col("name").In([]string{"Jaco", "Kimi"})).String()
 	t.Log(sql)
 }
+
+func TestLike(t *testing.T) {
+	// name LIKE '%Di%'
+	sql := syntax.Condition(syntax.Col("name").Like("%Di%")).String()
+	t.Log(sql)
+}
