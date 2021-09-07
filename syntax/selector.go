@@ -97,3 +97,15 @@ func OrderBy(sql Selector, row []OrderRow) Builder {
 	}
 	return sql
 }
+
+func AnyMap(obj map[string]interface{}) Columned {
+	return nil
+}
+
+func AnyIns(obj []interface{}) Columned {
+	return nil
+}
+
+func AnyObj(obj []interface{}) Columned {
+	return nil
+}
