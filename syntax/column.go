@@ -33,6 +33,11 @@ type Column struct {
 	value string
 }
 
+func (c *Column) Not(column Compare) Compare {
+	c.value = fmt.Sprintf("%s NOT %s", c.value, column.String())
+	return c
+}
+
 func (c *Column) OR(column Compare) Columned {
 	c.value = fmt.Sprintf("%s OR %s", c.value, column.String())
 	return c

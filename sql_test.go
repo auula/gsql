@@ -155,7 +155,7 @@ func TestBetween(t *testing.T) {
 	// SELECT name, age, money AS '余额' FROM user_info
 	// WHERE created_at BETWEEN '2000-01-08 00:00:00'
 	// AND '2021-09-07 20:38:52'
-	// OR age BETWEEN 10 AND 21
+	// AND age BETWEEN 10 AND 21
 
 	err, left := syntax.Col("created_at").Between([]interface{}{
 		"'2000-01-08 00:00:00'",
@@ -163,7 +163,7 @@ func TestBetween(t *testing.T) {
 	})
 
 	err, right := syntax.Col("age").Between([]interface{}{10, 21})
-	sql := syntax.Condition(left).OR(right)
+	sql := syntax.Condition(left).AND(right)
 
 	syntaxSql := gsql.Select("name", "age", syntax.As("money", "余额")).
 		From("user_info").WhereBind(sql).String()
