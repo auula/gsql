@@ -1,6 +1,9 @@
 package syntax
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 //// Col("name").Eq(9) name = 9
 //// Col(Col("name").Equal(9)).AND(Col("age").Eq(10))
@@ -15,7 +18,7 @@ type Columned interface {
 
 type Compare interface {
 	String() string
-	In(value interface{}) Compare
+	In(value []string) Compare
 	Like(value interface{}) Compare
 	Equal(value interface{}) Compare
 	Time(value string) Compare
@@ -53,20 +56,32 @@ func Col(value string) Compare {
 	}
 }
 
-func (c *Column) In(value interface{}) Compare {
-	panic("implement me")
+func (c *Column) In(value []string) Compare {
+	buf := new(strings.Builder)
+	for i, s := range value {
+		buf.WriteString(fmt.Sprintf("'%v'", s))
+		if len(value)-1 == i {
+			break
+		}
+		buf.WriteString(",")
+	}
+	c.value = fmt.Sprintf("%s IN (%v)", c.value, buf)
+	return c
 }
 
 func (c *Column) Like(value interface{}) Compare {
-	panic("implement me")
+	c.value = fmt.Sprintf("%s = %v", c.value, value)
+	return c
 }
 
 func (c *Column) Time(value string) Compare {
-	panic("implement me")
+	c.value = fmt.Sprintf("%s = %v", c.value, value)
+	return c
 }
 
 func (c *Column) Between(value []string) Compare {
-	panic("implement me")
+	c.value = fmt.Sprintf("%s = %v", c.value, value)
+	return c
 }
 
 func (c *Column) Equal(value interface{}) Compare {
