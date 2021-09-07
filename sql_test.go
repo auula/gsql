@@ -152,8 +152,8 @@ func TestBetween(t *testing.T) {
 	// created_at BETWEEN '2021-09-07 16:01:06' AND '2000-01-08 00:00:00' OR age BETWEEN 10 AND 21
 
 	err, left := syntax.Col("created_at").Between([]interface{}{
-		fmt.Sprintf("'%v'", time.Now().Format("2006-01-02 15:04:05")),
 		"'2000-01-08 00:00:00'",
+		fmt.Sprintf("'%v'", time.Now().Format("2006-01-02 15:04:05")),
 	})
 
 	err, right := syntax.Col("age").Between([]interface{}{10, 21})
