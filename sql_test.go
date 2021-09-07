@@ -78,9 +78,9 @@ func TestSelectFilter(t *testing.T) {
 func TestSelectAlias(t *testing.T) {
 
 	type UserInfo struct {
-		Name  string  `json:"name"`
-		Age   int     `json:"age"`
-		Money float64 `json:"money"`
+		Name  string  `sql:"name"`
+		Age   int     `sql:"age"`
+		Money float64 `sql:"money"`
 	}
 
 	sql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
@@ -88,10 +88,8 @@ func TestSelectAlias(t *testing.T) {
 		"money": "金钱",
 	})).
 		From("user_info").
-		Where("name = ?", "Leon Ding")
-
-	code := syntax.Limit(sql, true, 1, 3).String()
-	t.Log(code)
+		Where("name = ?", "Leon Ding").Limit(1).String()
+	t.Log(sql)
 
 	syntaxSql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
 		"name":  "用户名",
