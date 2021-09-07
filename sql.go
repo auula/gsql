@@ -15,6 +15,12 @@ type SqlSelect struct {
 	Err      error
 }
 
+func (sql *SqlSelect) WhereBind(columned syntax.Columned) syntax.Builder {
+	sql.buf.WriteString(" WHERE ")
+	sql.buf.WriteString(columned.String())
+	return sql
+}
+
 func (sql *SqlSelect) Limit(row int) syntax.Filter {
 	sql.buf.WriteString(fmt.Sprintf(" LIMIT %v", row))
 	return sql

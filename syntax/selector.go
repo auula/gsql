@@ -29,6 +29,7 @@ type Form interface {
 
 type Where interface {
 	Where(sql string, v ...interface{}) Filter
+	WhereBind(columned Columned) Builder
 }
 
 type Filter interface {
@@ -86,7 +87,7 @@ type OrderRow struct {
 }
 
 func OrderBy(sql Selector, row []OrderRow) Builder {
-	sql.Buf().WriteString(" ORDER BY ")
+	sql.Buf().WriteString(" ORDER BY")
 	for i, iterm := range row {
 		sql.Buf().WriteString(fmt.Sprintf(" %s %v", iterm.Field, iterm.Sort))
 		if len(row)-1 == i {

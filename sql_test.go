@@ -111,9 +111,9 @@ func TestSelectAlias(t *testing.T) {
 func TestSqlSelectOrderBy(t *testing.T) {
 
 	type UserInfo struct {
-		Name  string  `json:"name"`
-		Age   int     `json:"age"`
-		Money float64 `json:"money"`
+		Name  string  `sql:"name"`
+		Age   int     `sql:"age"`
+		Money float64 `sql:"money"`
 	}
 
 	syntaxSql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
@@ -124,8 +124,11 @@ func TestSqlSelectOrderBy(t *testing.T) {
 	sql := syntax.OrderBy(syntaxSql, []syntax.OrderRow{
 		{"money", syntax.DESC},
 		{"age", syntax.ASC},
-	}).String()
-	t.Log(sql)
+	})
+
+	s := syntax.Limit(sql, true, 1, 3).String()
+
+	t.Log(s)
 }
 
 func TestCol(t *testing.T) {
@@ -149,7 +152,10 @@ func TestLike(t *testing.T) {
 
 func TestBetween(t *testing.T) {
 
-	// created_at BETWEEN '2000-01-08 00:00:00' AND '2021-09-07 16:03:47' OR age BETWEEN 10 AND 21
+	// SELECT name, age, money AS '余额' FROM user_info
+	// WHERE created_at BETWEEN '2000-01-08 00:00:00'
+	//		AND
+	// '2021-09-07 18:33:45' OR age BETWEEN 10 AND 21
 
 	err, left := syntax.Col("created_at").Between([]interface{}{
 		"'2000-01-08 00:00:00'",
@@ -157,11 +163,14 @@ func TestBetween(t *testing.T) {
 	})
 
 	err, right := syntax.Col("age").Between([]interface{}{10, 21})
-	sql := syntax.Condition(left).OR(right).String()
+	sql := syntax.Condition(left).OR(right)
+
+	syntaxSql := gsql.Select("name", "age", syntax.As("money", "余额")).
+		From("user_info").WhereBind(sql).String()
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Log(sql)
+	t.Log(syntaxSql)
 }
