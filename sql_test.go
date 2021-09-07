@@ -103,9 +103,9 @@ func TestSelectAlias(t *testing.T) {
 	t.Log(s)
 
 	//=== RUN   TestSelectAlias
-	//sql_test.go:94: SELECT name AS '用户名', age, money AS '金钱' FROM user_info WHERE name = 'Leon Ding' LIMIT 3 OFFSET 1
+	//sql_test.go:94: SELECT name AS '用户名', age, money AS '金钱' FROM user_info WHERE name = 'Leon Ding' LIMIT 1
 	//sql_test.go:104: limit syntax recurring
-	//sql_test.go:105: SELECT name AS '用户名', age, money AS '金钱' FROM user_info LIMIT 1 OFFSET 1
+	//sql_test.go:105: SELECT name AS '用户名', age, money AS '金钱' FROM user_info LIMIT 3 OFFSET 1
 	//--- PASS: TestSelectAlias (0.00s)
 	//PASS
 
