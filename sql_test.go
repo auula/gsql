@@ -21,11 +21,11 @@ func TestSelectString(t *testing.T) {
 func TestSelectTag(t *testing.T) {
 
 	type UserInfo struct {
-		Name string `json:"name"`
-		Age  int    `json:"age"`
+		Name string `sql:"name"`
+		Age  int    `sql:"age"`
 	}
-	// SELECT name, age FROM user_info WHERE money >= '100'
-	err, s := gsql.Select(UserInfo{}).From("user_info").Where("money >= ?", "100").Build()
+	// SELECT name, age FROM user_info WHERE money >= 999.90 AND age = 18
+	err, s := gsql.Select(UserInfo{}).From("user_info").Where("money >= ? AND age = ?", 999.9, 18).Build()
 	t.Log(err)
 	t.Log(s)
 }

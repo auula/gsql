@@ -96,22 +96,25 @@ func (sql *SqlSelect) Distinct() syntax.Selector {
 // Where money >= 100 "money > #?" 100
 func (sql *SqlSelect) Where(s string, v ...interface{}) syntax.Filter {
 
-	buf := new(strings.Builder)
 	if len(v) != strings.Count(s, "?") {
 		sql.Err = fmt.Errorf("missing parameters: %w", errors.New("where syntax lack of conditions"))
 		return sql
 	}
-	buf.WriteString(" WHERE ")
+	sql.buf.WriteString(" WHERE ")
 	for _, value := range v {
 		switch value.(type) {
 		case string:
-			buf.WriteString(strings.Replace(s, "?", fmt.Sprintf("'%s'", value.(string)), -1))
+			s = strings.Replace(s, "?", fmt.Sprintf("'%s'", value.(string)), 1)
 			// 数字类型 时间类型 浮点数类型
+		case float64:
+			s = strings.Replace(s, "?", fmt.Sprintf("%.2f", value.(float64)), 1)
+		case int:
+			s = strings.Replace(s, "?", fmt.Sprintf("%d", value.(int)), 1)
 		default:
 			continue
 		}
 	}
-	sql.buf.WriteString(buf.String())
+	sql.buf.WriteString(s)
 	return sql
 }
 

@@ -15,6 +15,10 @@ type Columned interface {
 	String() string
 }
 
+type Bind interface {
+	String() string
+}
+
 // 这里可以指定一下类型
 
 type Compare interface {
