@@ -95,7 +95,7 @@ func TestSelectAlias(t *testing.T) {
 		"name":  "用户名",
 		"money": "金钱",
 	})).
-		From("user_info")
+		From("user_info").Limit(2)
 
 	err, s := syntax.Limit(syntaxSql, true, 1, 3).Build()
 
@@ -103,11 +103,10 @@ func TestSelectAlias(t *testing.T) {
 	t.Log(s)
 
 	//=== RUN   TestSelectAlias
-	//sql_test.go:94: SELECT name AS '用户名', age, money AS '金钱' FROM user_info WHERE name = 'Leon Ding' LIMIT 1
-	//sql_test.go:104: limit syntax recurring
-	//sql_test.go:105: SELECT name AS '用户名', age, money AS '金钱' FROM user_info LIMIT 3 OFFSET 1
+	//sql_test.go:92: SELECT name AS '用户名', age, money AS '金钱' FROM user_info WHERE name = 'Leon Ding' LIMIT 1
+	//sql_test.go:102: limit syntax recurring
+	//sql_test.go:103: SELECT name AS '用户名', age, money AS '金钱' FROM user_info LIMIT 2
 	//--- PASS: TestSelectAlias (0.00s)
-	//PASS
 
 }
 
