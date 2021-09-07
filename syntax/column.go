@@ -89,3 +89,7 @@ func (c *Column) Equal(value interface{}) Compare {
 	c.value = fmt.Sprintf("%s = %v", c.value, value)
 	return c
 }
+
+func Anyway(value interface{}) Columned {
+	return nil
+}
