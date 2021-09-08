@@ -1,12 +1,14 @@
 package gsql
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 )
 
 type Query struct {
+	Obj            interface{}
 	IsSQLLimit     bool
 	TableName      string
 	DBType         int
@@ -23,6 +25,7 @@ type ActionResult struct {
 
 type Action interface {
 	Where
+	Builder
 	In() ActionResult
 	One() ActionResult
 	ById() ActionResult
@@ -113,6 +116,8 @@ func (q *Query) From(model interface{}) Action {
 		}
 	}
 
+	q.Obj = model
+
 	return q
 }
 
@@ -125,7 +130,8 @@ func (q *Query) In() ActionResult {
 }
 
 func (q *Query) One() ActionResult {
-	panic("implement me")
+	fmt.Println(q.Build())
+	return ActionResult{Result: q.Obj}
 }
 
 func (q *Query) ById() ActionResult {
@@ -141,6 +147,41 @@ func (q *Query) isNotNull() {
 }
 
 func (q *Query) Exec() ActionResult {
+	panic("implement me")
+}
+
+func (q *Query) Build() (error, string) {
+
+	sql := new(strings.Builder)
+	sql.WriteString("SELECT ")
+
+	if q.SelectColumns.String() != "" && q.SelectColumns != nil {
+		sql.WriteString(q.SelectColumns.String())
+	}
+
+	if q.TableName == "" {
+		return fmt.Errorf("%w", errors.New("table name found")), ""
+	}
+
+	sql.WriteString(fmt.Sprintf("FROM %s ", q.TableName))
+
+	if q.ConditionSQL.String() != "" && q.ConditionSQL != nil {
+		sql.WriteString("WHERE")
+		sql.WriteString(q.ConditionSQL.String())
+	}
+
+	return nil, sql.String()
+}
+
+func (q *Query) String() string {
+	panic("implement me")
+}
+
+func (q *Query) Buf() *strings.Builder {
+	panic("implement me")
+}
+
+func (q *Query) Error(err error) {
 	panic("implement me")
 }
 

@@ -13,6 +13,7 @@ type UserInfo struct {
 
 func TestSelect(t *testing.T) {
 
+	//
 	sql1 := gsql.Select().From(UserInfo{})
 	t.Log(sql1)
 
