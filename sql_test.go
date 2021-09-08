@@ -21,10 +21,17 @@ func TestSelect(t *testing.T) {
 
 	t.Log(reflect.DeepEqual(sql1, sql2))
 
+	sql3 := gsql.SelectAs(gsql.Alias(UserInfo{}, map[string]string{
+		"name": "名字",
+	})).From(UserInfo{})
+
+	t.Log(sql3)
+
 	//=== RUN   TestSelect
 	//sql_test.go:16: &{false UserInfo 0 name, age   []}
 	//sql_test.go:19: &{false UserInfo 0 name, age AS '年龄'   []}
 	//sql_test.go:21: false
+	//sql_test.go:28: &{false UserInfo 0 name AS '名字', age   []}
 	//--- PASS: TestSelect (0.00s)
 	//PASS
 }
