@@ -163,10 +163,10 @@ func (q *Query) Build() (error, string) {
 		return fmt.Errorf("%w", errors.New("table name found")), ""
 	}
 
-	sql.WriteString(fmt.Sprintf("FROM %s ", q.TableName))
+	sql.WriteString(fmt.Sprintf(" FROM %s", q.TableName))
 
 	if q.ConditionSQL.String() != "" && q.ConditionSQL != nil {
-		sql.WriteString("WHERE")
+		sql.WriteString(" WHERE")
 		sql.WriteString(q.ConditionSQL.String())
 	}
 
@@ -174,7 +174,11 @@ func (q *Query) Build() (error, string) {
 }
 
 func (q *Query) String() string {
-	panic("implement me")
+	err, s := q.Build()
+	if err != nil {
+		return ""
+	}
+	return s
 }
 
 func (q *Query) Buf() *strings.Builder {
