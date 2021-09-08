@@ -69,7 +69,7 @@ func Select() From {
 		SelectColumns:  new(strings.Builder),
 		ConditionSQL:   new(strings.Builder),
 		OrderBySQL:     new(strings.Builder),
-		ExcludeColumns: make([]string, 10),
+		ExcludeColumns: make([]string, 0),
 	}
 }
 
@@ -82,7 +82,7 @@ func SelectAs(values []string) From {
 		SelectColumns:  new(strings.Builder),
 		ConditionSQL:   new(strings.Builder),
 		OrderBySQL:     new(strings.Builder),
-		ExcludeColumns: make([]string, 10),
+		ExcludeColumns: make([]string, 0),
 	}
 
 	for i, v := range values {
@@ -103,7 +103,7 @@ func (q *Query) From(model interface{}) Action {
 	ty := reflect.TypeOf(model)
 	q.TableName = ty.Name()
 
-	if q.SelectColumns == nil && q.SelectColumns.String() == "" {
+	if q.SelectColumns != nil && q.SelectColumns.String() == "" {
 		for i := 0; i < ty.NumField(); i++ {
 			q.SelectColumns.WriteString(ty.Field(i).Tag.Get("sql"))
 			if i == ty.NumField()-1 {
