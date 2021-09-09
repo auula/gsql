@@ -52,6 +52,11 @@ type Builder interface {
 	Error(err error)
 }
 
+type Execution interface {
+	SQLString(str string) Execution
+	Execute() ActionResult
+}
+
 type Selector interface {
 	Select() From
 }

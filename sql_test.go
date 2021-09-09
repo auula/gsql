@@ -13,8 +13,7 @@ type UserInfo struct {
 
 func TestSelect(t *testing.T) {
 
-	//
-	sql1 := gsql.Select().From(UserInfo{})
+	sql1 := gsql.Select().From(UserInfo{}).One()
 	t.Log(sql1)
 
 	sql2 := gsql.SelectAs([]string{"name", gsql.As("age", "年龄")}).From(UserInfo{})
