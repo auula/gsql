@@ -73,3 +73,14 @@ func TestSelectLimit(t *testing.T) {
 	t.Log(sql2)
 
 }
+
+func TestSelectOrder(t *testing.T) {
+
+	// SELECT id, name, age FROM UserInfo WHERE age > 10 ORDER BY id ASC
+	sql2 := gsql.Select().From(UserInfo{}).Where("age > ?", 10).Order([]gsql.Rows{
+		{"id", "ASC"},
+	})
+
+	t.Log(sql2)
+
+}

@@ -5,139 +5,91 @@ GSQL is a structured query language code builder for golang.
 ## Genreate SQL
 
 ```go
-
 package gsql_test
 
 import (
 	"github.com/auula/gsql"
-	"github.com/auula/gsql/syntax"
 	"testing"
 )
 
-func TestSelectString(t *testing.T) {
-	// SELECT name, age, money FROM user_info WHERE money >= '100'
-	err, s := gsql.Select("name", "age", "money").
-		From("user_info").Where("money >= ?", "100").
-		Build()
-
-	t.Log(err)
-	t.Log(s)
+type UserInfo struct {
+	Id   int    `db:"id" pk:"id"`
+	Name string `db:"name"`
+	Age  int    `db:"age"`
 }
 
-func TestSelectTag(t *testing.T) {
+func TestSelect(t *testing.T) {
 
-	type UserInfo struct {
-		Name string `json:"name"`
-		Age  int    `json:"age"`
-	}
-	// SELECT name, age FROM user_info WHERE money >= '100'
-	err, s := gsql.Select(UserInfo{}).From("user_info").Where("money >= ?", "100").Build()
-	t.Log(err)
-	t.Log(s)
+	// SELECT id, name, age FROM UserInfo
+	sql1 := gsql.Select().From(UserInfo{})
+	t.Log(sql1)
+
+	// SELECT id, name AS '名字', age, id FROM UserInfo WHERE id = 1
+	sql2 := gsql.SelectAs([]string{"name", gsql.As("age", "年龄"), "id"}).From(UserInfo{}).ById(2)
+	t.Log(sql2)
+
+	// SELECT id, name AS '名字', age, id FROM UserInfo WHERE id = 1
+	sql3 := gsql.SelectAs(gsql.Alias(UserInfo{}, map[string]string{
+		"name": "名字",
+	})).From(UserInfo{}).ById(1)
+	t.Log(sql3)
+
 }
 
-func TestSelectMix(t *testing.T) {
+func TestSelectByIds(t *testing.T) {
 
-	//sql_test.go:36: missing parameters: where syntax lack of conditions
-	//sql_test.go:37: SELECT name, age, money FROM user_info
-	err, s := gsql.Select("name", 3.1415827, "age", 112, "money").
-		From("user_info").
-		Where("money >= ?", "100", "1").Build()
-
-	t.Log(err)
-	t.Log(s)
-}
-
-func TestSelectToStr(t *testing.T) {
-
-	// SELECT name, age, money FROM user_info WHERE name = 'Leon Ding'
-	sql := gsql.Select("name", "age", "money").
-		From("user_info").
-		Where("name = ?", "Leon Ding").String()
-
-	t.Log(sql)
-}
-
-func TestSelectAsName(t *testing.T) {
-
-	// SELECT name, age, money AS '余额' FROM user_info WHERE name = 'Leon Ding'
-	sql := gsql.Select("name", "age", syntax.As("money", "余额")).
-		From("user_info").
-		Where("name = ?", "Leon Ding").String()
-
-	t.Log(sql)
-}
-
-func TestSelectFilter(t *testing.T) {
-
-	// offset=true SELECT name, age, money AS '余额' FROM user_info LIMIT 3 OFFSET 1
-	// offset=false SELECT name, age, money AS '余额' FROM user_info LIMIT 1,3
-
-	syntaxSql := gsql.Select("name", "age", syntax.As("money", "余额")).
-		From("user_info")
-
-	// SELECT name, age, money AS '余额' FROM user_info LIMIT 3 OFFSET 1
-	sql := syntax.Limit(syntaxSql, true, 1, 3).String()
+	// SELECT id, name, age FROM UserInfo WHERE id IN (1, 2, 3)
+	sql := gsql.Select().From(UserInfo{}).ByIds(1, 2, 3)
 	t.Log(sql)
 
 }
 
-func TestSelectAlias(t *testing.T) {
+func TestSelectIns(t *testing.T) {
 
-	type UserInfo struct {
-		Name  string  `json:"name"`
-		Age   int     `json:"age"`
-		Money float64 `json:"money"`
+	// SELECT id, name, age FROM UserInfo WHERE age IN (21, 19, 28)
+	sql := gsql.Select().From(UserInfo{}).In("age", 21, 19, 28)
+	t.Log(sql)
+
+	sql2 := gsql.Select().From(UserInfo{}).In("name", []string{
+		"Jaco",
+		"Leon",
+	})
+	t.Log(sql2)
+}
+
+func TestSelectOne(t *testing.T) {
+
+	// SELECT id, name, age FROM UserInfo LIMIT 1
+	_, sql := gsql.Select().From(UserInfo{}).One()
+	t.Log(sql)
+
+	// SELECT id, name, age FROM UserInfo WHERE age > 10 LIMIT 1
+	err, sql2 := gsql.Select().From(UserInfo{}).Where("age > ?", 10).One()
+
+	if err == nil {
+		t.Log(sql2)
 	}
 
-	sql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
-		"name":  "用户名",
-		"money": "金钱",
-	})).
-		From("user_info").
-		Where("name = ?", "Leon Ding")
+}
 
-	code := syntax.Limit(sql, true, 1, 3).String()
-	t.Log(code)
+func TestSelectLimit(t *testing.T) {
 
-	syntaxSql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
-		"name":  "用户名",
-		"money": "金钱",
-	})).
-		From("user_info")
+	// SELECT id, name, age FROM UserInfo WHERE age > 10 LIMIT 3 OFFSET 1
+	sql2 := gsql.Select().From(UserInfo{}).Where("age > ?", 10).Limit(true, 1, 3)
 
-	err, s := syntax.Limit(syntaxSql, true, 1, 3).Build()
-
-	t.Log(err)
-	t.Log(s)
-
-	//=== RUN   TestSelectAlias
-	//sql_test.go:94: SELECT name AS '用户名', age, money AS '金钱' FROM user_info WHERE name = 'Leon Ding' LIMIT 3 OFFSET 1
-	//sql_test.go:104: limit syntax recurring
-	//sql_test.go:105: SELECT name AS '用户名', age, money AS '金钱' FROM user_info LIMIT 1 OFFSET 1
-	//--- PASS: TestSelectAlias (0.00s)
-	//PASS
+	t.Log(sql2)
 
 }
 
-func TestSqlSelectOrderBy(t *testing.T) {
-	type UserInfo struct {
-		Name  string  `json:"name"`
-		Age   int     `json:"age"`
-		Money float64 `json:"money"`
-	}
 
-	syntaxSql := gsql.SelectAs(syntax.Alias(UserInfo{}, map[string]string{
-		"name": "用户名",
-	})).
-		From("user_info")
+func TestSelectOrder(t *testing.T) {
 
-	// SELECT name AS '用户名', age, money FROM user_info ORDER BY  money DESC, age ASC
-	sql := syntax.OrderBy(syntaxSql, []syntax.OrderRow{
-		{"money", syntax.DESC},
-		{"age", syntax.ASC},
-	}).String()
+	// SELECT id, name, age FROM UserInfo WHERE age > 10 ORDER BY id ASC
+	sql2 := gsql.Select().From(UserInfo{}).Where("age > ?", 10).Order([]gsql.Rows{
+		{"id","ASC"},
+	})
 
-	t.Log(sql)
+	t.Log(sql2)
+
 }
 ```

@@ -27,6 +27,7 @@ type Rows struct {
 type Action interface {
 	Where
 	Limit
+	Order
 	Builder
 	In(column string, values ...interface{}) Builder
 	One() (error, string)
@@ -39,7 +40,7 @@ type Limit interface {
 }
 
 type Order interface {
-	Order(rows []Rows) Action
+	Order(rows []Rows) Builder
 }
 
 // Builder generate structured query language code string
@@ -111,8 +112,19 @@ func (q *Query) Limit(offset bool, index, row int) Builder {
 	return q
 }
 
-func (q *Query) Order(rows []Rows) Action {
-	panic("implement me")
+func (q *Query) Order(rows []Rows) Builder {
+
+	for i, iterm := range rows {
+
+		q.OrderBySQL.WriteString(fmt.Sprintf("%s %v", iterm.Field, iterm.Sort))
+		if len(rows)-1 == i {
+			break
+		}
+
+		q.OrderBySQL.WriteString(",")
+	}
+
+	return q
 }
 
 func (q *Query) From(model interface{}) Action {
@@ -258,6 +270,10 @@ func (q *Query) Build() (error, string) {
 		sql.WriteString(q.SQLLimit.String())
 	}
 
+	if q.OrderBySQL.Len() > 0 {
+		sql.WriteString(" ORDER BY ")
+		sql.WriteString(q.OrderBySQL.String())
+	}
 	return nil, sql.String()
 }
 
