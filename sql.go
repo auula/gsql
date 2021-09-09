@@ -150,6 +150,7 @@ func (q *Query) One() ActionResult {
 }
 
 func (q *Query) ById(id int) (err error) {
+
 	var sql string
 	if q.ConditionSQL != nil && q.ConditionSQL.String() == "" {
 		q.ConditionSQL.WriteString(fmt.Sprintf(" %s = %d", q.PrimaryKey, id))
@@ -157,9 +158,8 @@ func (q *Query) ById(id int) (err error) {
 	if err, sql = q.Build(); err != nil {
 		return
 	}
-	fmt.Println(q.PrimaryKey)
-	fmt.Println(sql)
-	return
+
+	return _db.Select(q.Obj, sql)
 
 }
 
