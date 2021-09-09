@@ -40,7 +40,7 @@ type Limit interface {
 }
 
 type Order interface {
-	Order(rows []Rows) Builder
+	Order(rows []Rows) Action
 }
 
 // Builder generate structured query language code string
@@ -112,7 +112,7 @@ func (q *Query) Limit(offset bool, index, row int) Builder {
 	return q
 }
 
-func (q *Query) Order(rows []Rows) Builder {
+func (q *Query) Order(rows []Rows) Action {
 
 	for i, iterm := range rows {
 
@@ -265,15 +265,16 @@ func (q *Query) Build() (error, string) {
 		sql.WriteString(q.ConditionSQL.String())
 	}
 
+	if q.OrderBySQL.Len() > 0 {
+		sql.WriteString(" ORDER BY ")
+		sql.WriteString(q.OrderBySQL.String())
+	}
+
 	if q.SQLLimit.Len() > 0 {
 		sql.WriteString(" LIMIT ")
 		sql.WriteString(q.SQLLimit.String())
 	}
 
-	if q.OrderBySQL.Len() > 0 {
-		sql.WriteString(" ORDER BY ")
-		sql.WriteString(q.OrderBySQL.String())
-	}
 	return nil, sql.String()
 }
 
