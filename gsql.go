@@ -29,7 +29,10 @@ func Open(dbType string, databaseSourceName string) (err error) {
 }
 
 func GetDB() *sqlx.DB {
-	return _orm.db
+	if _orm.db != nil {
+		return _orm.db
+	}
+	return nil
 }
 func Close() {
 	_orm.db.Close()
