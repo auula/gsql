@@ -33,3 +33,7 @@ func Open(dbType string, databaseSourceName string) (err error) {
 func GetDB() *sqlx.DB {
 	return _orm.db
 }
+func Close() {
+	_orm.db.Close()
+	_orm = nil
+}
