@@ -35,5 +35,7 @@ func GetDB() *sqlx.DB {
 }
 func Close() {
 	_orm.db.Close()
-	_orm = nil
+	if _orm != nil {
+		_orm = nil
+	}
 }
