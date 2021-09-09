@@ -96,15 +96,12 @@ func SelectAs(values []string) From {
 	}
 
 	for i, v := range values {
-		if i == 1 {
-			s.PrimaryKey = v
-		}
 		s.SelectColumns.WriteString(v)
 		if i == len(values)-1 {
+			s.PrimaryKey = v
 			break
 		}
 		s.SelectColumns.WriteString(", ")
-
 	}
 
 	return s
@@ -222,21 +219,20 @@ func As(column string, asName string) string {
 }
 
 func Alias(model interface{}, aliasMap map[string]string) []string {
-	values := make([]string, 0)
+	values, key := make([]string, 0), ""
 	ty := reflect.TypeOf(model)
-	primaryKey := ""
 	for i := 0; i < ty.NumField(); i++ {
+
 		if pkColumn := ty.Field(i).Tag.Get("pk"); pkColumn != "" {
-			primaryKey = pkColumn
+			key = pkColumn
 		}
+
 		if v, ok := aliasMap[ty.Field(i).Tag.Get("db")]; ok {
-			values = append(values, fmt.Sprintf("%s AS '%s'", ty.Field(i).Tag.Get("pk"), v))
+			values = append(values, fmt.Sprintf("%s AS '%s'", ty.Field(i).Tag.Get("db"), v))
 		} else {
 			values = append(values, ty.Field(i).Tag.Get("db"))
 		}
 	}
-	// 查找主键到第一个位置
-	newVla := make([]string, 0, len(values))
-	newVla = append(newVla, primaryKey)
-	return append(newVla, values...)
+
+	return append(values, key)
 }

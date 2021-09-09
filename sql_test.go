@@ -7,7 +7,7 @@ import (
 )
 
 type UserInfo struct {
-	Id   string `db:"id" pk:"id"`
+	Id   int    `db:"id" pk:"id"`
 	Name string `db:"name"`
 	Age  int    `db:"age"`
 }
@@ -18,7 +18,7 @@ func TestSelect(t *testing.T) {
 	sql1 := gsql.Select().From(UserInfo{}).ById(1)
 	t.Log(sql1)
 
-	sql2 := gsql.SelectAs([]string{"name", gsql.As("age", "年龄")}).From(UserInfo{}).ById(2)
+	sql2 := gsql.SelectAs([]string{"name", gsql.As("age", "年龄"), "id"}).From(UserInfo{}).ById(2)
 	t.Log(sql2)
 
 	t.Log(reflect.DeepEqual(sql1, sql2))
