@@ -13,8 +13,8 @@ type UserInfo struct {
 
 func TestSelect(t *testing.T) {
 
-	// SELECT id, name, age FROM UserInfo WHERE id = 1
-	sql1 := gsql.Select().From(UserInfo{}).ById(1)
+	// SELECT id, name, age FROM UserInfo
+	sql1 := gsql.Select().From(UserInfo{})
 	t.Log(sql1)
 
 	// SELECT id, name AS '名字', age, id FROM UserInfo WHERE id = 1
