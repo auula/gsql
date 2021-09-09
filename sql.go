@@ -30,7 +30,7 @@ type Action interface {
 	Where
 	Builder
 	In(column string, values ...interface{}) Builder
-	One() string
+	One() (error, string)
 	ById(id int) Builder
 	ByIds(ids ...int) Builder
 	isNotNull()
@@ -193,8 +193,12 @@ func (q *Query) In(column string, values ...interface{}) Builder {
 	return q
 }
 
-func (q *Query) One() string {
-	return fmt.Sprintf("%s LIMIT 1", q.String())
+func (q *Query) One() (error, string) {
+	err, s := q.Build()
+	if err != nil {
+		return err, ""
+	}
+	return nil, fmt.Sprintf("%s LIMIT 1", s)
 }
 
 func (q *Query) ById(id int) Builder {

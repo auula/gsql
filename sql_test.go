@@ -53,10 +53,14 @@ func TestSelectIns(t *testing.T) {
 func TestSelectOne(t *testing.T) {
 
 	// SELECT id, name, age FROM UserInfo LIMIT 1
-	sql := gsql.Select().From(UserInfo{}).One()
+	_, sql := gsql.Select().From(UserInfo{}).One()
 	t.Log(sql)
 
 	// SELECT id, name, age FROM UserInfo WHERE age > 10 LIMIT 1
-	sql2 := gsql.Select().From(UserInfo{}).Where("age > ?", 10).One()
-	t.Log(sql2)
+	err, sql2 := gsql.Select().From(UserInfo{}).Where("age > ?", 10).One()
+
+	if err == nil {
+		t.Log(sql2)
+	}
+
 }
