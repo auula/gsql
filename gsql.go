@@ -17,13 +17,11 @@ type ORM struct {
 }
 
 func Open(dbType string, databaseSourceName string) (err error) {
-	var db *sqlx.DB
 	once.Do(
 		func() {
 			if _orm != nil {
 				_orm = new(ORM)
-				db, err = sqlx.Open(dbType, databaseSourceName)
-				_orm.db = db
+				_orm.db, err = sqlx.Open(dbType, databaseSourceName)
 			}
 		},
 	)
