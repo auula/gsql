@@ -36,3 +36,16 @@ func TestSelectByIds(t *testing.T) {
 	t.Log(sql)
 
 }
+
+func TestSelectIns(t *testing.T) {
+
+	// SELECT id, name, age FROM UserInfo WHERE age IN (21, 19, 28)
+	sql := gsql.Select().From(UserInfo{}).In("age", 21, 19, 28)
+	t.Log(sql)
+
+	sql2 := gsql.Select().From(UserInfo{}).In("name", []string{
+		"Jaco",
+		"Leon",
+	})
+	t.Log(sql2)
+}

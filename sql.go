@@ -28,7 +28,7 @@ type ActionResult struct {
 type Action interface {
 	Where
 	Builder
-	In() ActionResult
+	In(column string, values ...interface{}) Builder
 	One() ActionResult
 	ById(id int) Builder
 	ByIds(ids ...int) Builder
@@ -138,12 +138,44 @@ func (q *Query) Where() {
 	panic("implement me")
 }
 
-func (q *Query) In() ActionResult {
-	panic("implement me")
+func (q *Query) In(column string, values ...interface{}) Builder {
+	buf := new(strings.Builder)
+	for i, v := range values {
+		switch v.(type) {
+		case []string:
+			for i, s := range v.([]string) {
+				buf.WriteString(fmt.Sprintf("'%s'", s))
+				if i == len(v.([]string))-1 {
+					break
+				}
+				buf.WriteString(", ")
+			}
+		case []int:
+			for i, s := range v.([]int) {
+				buf.WriteString(fmt.Sprintf("'%d'", s))
+				if i == len(v.([]int))-1 {
+					break
+				}
+				buf.WriteString(", ")
+			}
+		default:
+			buf.WriteString(fmt.Sprintf("%v", v))
+		}
+
+		if i == len(values)-1 {
+			break
+		}
+		buf.WriteString(", ")
+	}
+	if q.ConditionSQL != nil && q.ConditionSQL.String() == "" {
+		q.ConditionSQL.WriteString(fmt.Sprintf(" %s IN (%v)", column, buf))
+	}
+
+	return q
 }
 
 func (q *Query) One() ActionResult {
-	fmt.Println(q.Build())
+
 	return ActionResult{}
 }
 
