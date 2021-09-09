@@ -30,9 +30,7 @@ t.Log(sql1)
 
 ```go
 
-sql2 := gsql.SelectAs([]string{"name", gsql.As("age", "年龄"), "id"}).
-	From(UserInfo{}).
-	ById(2)
+sql2 := gsql.SelectAs([]string{"name", gsql.As("age", "年龄"), "id"}).From(UserInfo{}).ById(2)
 
 // SELECT id, name, age AS '年龄', id FROM UserInfo WHERE id = 2
 t.Log(sql2)
