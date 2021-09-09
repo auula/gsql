@@ -34,7 +34,6 @@ type Action interface {
 	ById(id int) Builder
 	ByIds(ids ...int) Builder
 	isNotNull()
-	Exec() ActionResult
 }
 
 type Compare interface {
@@ -51,13 +50,6 @@ type Compare interface {
 type Builder interface {
 	Build() (error, string)
 	String() string
-	Buf() *strings.Builder
-	Error(err error)
-}
-
-type Execution interface {
-	SQLString(str string) Execution
-	Execute() ActionResult
 }
 
 type Selector interface {
@@ -265,14 +257,6 @@ func (q *Query) String() string {
 		return ""
 	}
 	return s
-}
-
-func (q *Query) Buf() *strings.Builder {
-	panic("implement me")
-}
-
-func (q *Query) Error(err error) {
-	panic("implement me")
 }
 
 func As(column string, asName string) string {
