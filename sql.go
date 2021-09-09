@@ -36,16 +36,6 @@ type Action interface {
 	isNotNull()
 }
 
-type Compare interface {
-	GT() Where  // >
-	Gte() Where // >=
-	Lt() Where  // <
-	Lte() Where // <=
-	Equal() Where
-	NotEq() Where
-	Between() Where
-}
-
 // Builder generate structured query language code string
 type Builder interface {
 	Build() (error, string)
