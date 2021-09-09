@@ -18,6 +18,7 @@ type Query struct {
 	OrderBySQL     *strings.Builder
 	Parameter      []interface{}
 	ExcludeColumns []string
+	Err            error
 }
 
 type ActionResult struct {
@@ -29,7 +30,7 @@ type Action interface {
 	Where
 	Builder
 	In(column string, values ...interface{}) Builder
-	One() ActionResult
+	One() string
 	ById(id int) Builder
 	ByIds(ids ...int) Builder
 	isNotNull()
@@ -68,7 +69,7 @@ type From interface {
 }
 
 type Where interface {
-	Where()
+	Where(sql string, values ...interface{}) Action
 }
 
 func Select() From {
@@ -134,8 +135,26 @@ func (q *Query) From(model interface{}) Action {
 
 // 不能出现ById
 
-func (q *Query) Where() {
-	panic("implement me")
+func (q *Query) Where(sql string, values ...interface{}) Action {
+	if len(values) != strings.Count(sql, "?") {
+		q.Err = fmt.Errorf("missing parameters: %w", errors.New("where syntax lack of conditions"))
+		return q
+	}
+	for _, value := range values {
+		switch value.(type) {
+		case string:
+			sql = strings.Replace(sql, "?", fmt.Sprintf("'%s'", value.(string)), 1)
+			// 数字类型 时间类型 浮点数类型
+		case float64:
+			sql = strings.Replace(sql, "?", fmt.Sprintf("%.2f", value.(float64)), 1)
+		case int:
+			sql = strings.Replace(sql, "?", fmt.Sprintf("%d", value.(int)), 1)
+		default:
+			continue
+		}
+	}
+	q.ConditionSQL.WriteString(sql)
+	return q
 }
 
 func (q *Query) In(column string, values ...interface{}) Builder {
@@ -174,9 +193,8 @@ func (q *Query) In(column string, values ...interface{}) Builder {
 	return q
 }
 
-func (q *Query) One() ActionResult {
-
-	return ActionResult{}
+func (q *Query) One() string {
+	return fmt.Sprintf("%s LIMIT 1", q.String())
 }
 
 func (q *Query) ById(id int) Builder {
@@ -230,7 +248,7 @@ func (q *Query) Build() (error, string) {
 	sql.WriteString(fmt.Sprintf(" FROM %s", q.TableName))
 
 	if q.ConditionSQL.String() != "" && q.ConditionSQL != nil {
-		sql.WriteString(" WHERE")
+		sql.WriteString(" WHERE ")
 		sql.WriteString(q.ConditionSQL.String())
 	}
 
