@@ -21,11 +21,6 @@ type Query struct {
 	Err            error
 }
 
-type ActionResult struct {
-	Err    error
-	Result []interface{}
-}
-
 type Action interface {
 	Where
 	Builder
@@ -33,7 +28,6 @@ type Action interface {
 	One() (error, string)
 	ById(id int) Builder
 	ByIds(ids ...int) Builder
-	isNotNull()
 }
 
 // Builder generate structured query language code string
@@ -208,14 +202,6 @@ func (q *Query) ByIds(ids ...int) Builder {
 	}
 
 	return q
-}
-
-func (q *Query) isNotNull() {
-	panic("implement me")
-}
-
-func (q *Query) Exec() ActionResult {
-	panic("implement me")
 }
 
 func (q *Query) Build() (error, string) {
