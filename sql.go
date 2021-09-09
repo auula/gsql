@@ -22,7 +22,7 @@ type Query struct {
 
 type ActionResult struct {
 	Err    error
-	Result interface{}
+	Result []interface{}
 }
 
 type Action interface {
@@ -30,8 +30,8 @@ type Action interface {
 	Builder
 	In() ActionResult
 	One() ActionResult
-	ById(id int) (err error)
-	ByIds(ids ...int) ActionResult
+	ById(id int) Builder
+	ByIds(ids ...int) Builder
 	isNotNull()
 	Exec() ActionResult
 }
@@ -108,10 +108,8 @@ func SelectAs(values []string) From {
 }
 
 func (q *Query) From(model interface{}) Action {
-
 	ty := reflect.TypeOf(model)
 	q.TableName = ty.Name()
-
 	if q.SelectColumns != nil && q.SelectColumns.String() == "" {
 		for i := 0; i < ty.NumField(); i++ {
 
@@ -146,25 +144,34 @@ func (q *Query) In() ActionResult {
 
 func (q *Query) One() ActionResult {
 	fmt.Println(q.Build())
-	return ActionResult{Result: q.Obj}
+	return ActionResult{}
 }
 
-func (q *Query) ById(id int) (err error) {
+func (q *Query) ById(id int) Builder {
 
-	var sql string
 	if q.ConditionSQL != nil && q.ConditionSQL.String() == "" {
 		q.ConditionSQL.WriteString(fmt.Sprintf(" %s = %d", q.PrimaryKey, id))
 	}
-	if err, sql = q.Build(); err != nil {
-		return
-	}
 
-	return _db.Select(q.Obj, sql)
+	return q
 
 }
 
-func (q *Query) ByIds(ids ...int) ActionResult {
-	panic("implement me")
+func (q *Query) ByIds(ids ...int) Builder {
+
+	buf := new(strings.Builder)
+	for i, id := range ids {
+		buf.WriteString(fmt.Sprintf("%d", id))
+		if i == len(ids)-1 {
+			break
+		}
+		buf.WriteString(", ")
+	}
+	if q.ConditionSQL != nil && q.ConditionSQL.String() == "" {
+		q.ConditionSQL.WriteString(fmt.Sprintf(" %s IN (%v)", q.PrimaryKey, buf))
+	}
+
+	return q
 }
 
 func (q *Query) isNotNull() {

@@ -2,7 +2,6 @@ package gsql_test
 
 import (
 	"github.com/auula/gsql"
-	"reflect"
 	"testing"
 )
 
@@ -18,22 +17,22 @@ func TestSelect(t *testing.T) {
 	sql1 := gsql.Select().From(UserInfo{}).ById(1)
 	t.Log(sql1)
 
+	// SELECT id, name AS '名字', age, id FROM UserInfo WHERE id = 1
 	sql2 := gsql.SelectAs([]string{"name", gsql.As("age", "年龄"), "id"}).From(UserInfo{}).ById(2)
 	t.Log(sql2)
 
-	t.Log(reflect.DeepEqual(sql1, sql2))
-
+	// SELECT id, name AS '名字', age, id FROM UserInfo WHERE id = 1
 	sql3 := gsql.SelectAs(gsql.Alias(UserInfo{}, map[string]string{
 		"name": "名字",
 	})).From(UserInfo{}).ById(1)
-
 	t.Log(sql3)
 
-	//=== RUN   TestSelect
-	//sql_test.go:16: &{false UserInfo 0 name, age   []}
-	//sql_test.go:19: &{false UserInfo 0 name, age AS '年龄'   []}
-	//sql_test.go:21: false
-	//sql_test.go:28: &{false UserInfo 0 name AS '名字', age   []}
-	//--- PASS: TestSelect (0.00s)
-	//PASS
+}
+
+func TestSelectByIds(t *testing.T) {
+
+	// SELECT id, name, age FROM UserInfo WHERE id IN (1, 2, 3)
+	sql := gsql.Select().From(UserInfo{}).ByIds(1, 2, 3)
+	t.Log(sql)
+
 }
