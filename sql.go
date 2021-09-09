@@ -8,6 +8,7 @@ import (
 )
 
 type Query struct {
+	PrimaryKey     string
 	Obj            interface{}
 	IsSQLLimit     bool
 	TableName      string
@@ -15,6 +16,7 @@ type Query struct {
 	SelectColumns  *strings.Builder
 	ConditionSQL   *strings.Builder
 	OrderBySQL     *strings.Builder
+	Parameter      []interface{}
 	ExcludeColumns []string
 }
 
@@ -28,7 +30,7 @@ type Action interface {
 	Builder
 	In() ActionResult
 	One() ActionResult
-	ById() ActionResult
+	ById(id int) (err error)
 	ByIds(ids ...int) ActionResult
 	isNotNull()
 	Exec() ActionResult
@@ -94,7 +96,9 @@ func SelectAs(values []string) From {
 	}
 
 	for i, v := range values {
-
+		if i == 1 {
+			s.PrimaryKey = v
+		}
 		s.SelectColumns.WriteString(v)
 		if i == len(values)-1 {
 			break
@@ -113,7 +117,14 @@ func (q *Query) From(model interface{}) Action {
 
 	if q.SelectColumns != nil && q.SelectColumns.String() == "" {
 		for i := 0; i < ty.NumField(); i++ {
-			q.SelectColumns.WriteString(ty.Field(i).Tag.Get("sql"))
+
+			if pkColumn := ty.Field(i).Tag.Get("pk"); pkColumn != "" {
+				if q.PrimaryKey == "" {
+					q.PrimaryKey = pkColumn
+				}
+			}
+
+			q.SelectColumns.WriteString(ty.Field(i).Tag.Get("db"))
 			if i == ty.NumField()-1 {
 				break
 			}
@@ -125,6 +136,8 @@ func (q *Query) From(model interface{}) Action {
 
 	return q
 }
+
+// 不能出现ById
 
 func (q *Query) Where() {
 	panic("implement me")
@@ -139,8 +152,18 @@ func (q *Query) One() ActionResult {
 	return ActionResult{Result: q.Obj}
 }
 
-func (q *Query) ById() ActionResult {
-	panic("implement me")
+func (q *Query) ById(id int) (err error) {
+	var sql string
+	if q.ConditionSQL != nil && q.ConditionSQL.String() == "" {
+		q.ConditionSQL.WriteString(fmt.Sprintf(" %s = %d", q.PrimaryKey, id))
+	}
+	if err, sql = q.Build(); err != nil {
+		return
+	}
+	fmt.Println(q.PrimaryKey)
+	fmt.Println(sql)
+	return
+
 }
 
 func (q *Query) ByIds(ids ...int) ActionResult {
@@ -201,13 +224,19 @@ func As(column string, asName string) string {
 func Alias(model interface{}, aliasMap map[string]string) []string {
 	values := make([]string, 0)
 	ty := reflect.TypeOf(model)
-	ty.Name()
+	primaryKey := ""
 	for i := 0; i < ty.NumField(); i++ {
-		if v, ok := aliasMap[ty.Field(i).Tag.Get("sql")]; ok {
-			values = append(values, fmt.Sprintf("%s AS '%s'", ty.Field(i).Tag.Get("sql"), v))
+		if pkColumn := ty.Field(i).Tag.Get("pk"); pkColumn != "" {
+			primaryKey = pkColumn
+		}
+		if v, ok := aliasMap[ty.Field(i).Tag.Get("db")]; ok {
+			values = append(values, fmt.Sprintf("%s AS '%s'", ty.Field(i).Tag.Get("pk"), v))
 		} else {
-			values = append(values, ty.Field(i).Tag.Get("sql"))
+			values = append(values, ty.Field(i).Tag.Get("db"))
 		}
 	}
-	return values
+	// 查找主键到第一个位置
+	newVla := make([]string, 0, len(values))
+	newVla = append(newVla, primaryKey)
+	return append(newVla, values...)
 }
