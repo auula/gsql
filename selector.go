@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+type Selector interface {
+	From
+	Where
+	Order
+	Limit
+	Action
+	Builder
+}
+
 type Query struct {
 	PrimaryKey     string
 	TableName      string
@@ -47,10 +56,6 @@ type Order interface {
 type Builder interface {
 	Build() (error, string)
 	String() string
-}
-
-type Selector interface {
-	Select() From
 }
 
 type From interface {
