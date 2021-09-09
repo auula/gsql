@@ -67,8 +67,8 @@ func TestSelectOne(t *testing.T) {
 
 func TestSelectLimit(t *testing.T) {
 
-	// SELECT id, name, age FROM UserInfo WHERE age > 10 LIMIT 1
-	sql2 := gsql.Select().From(UserInfo{}).Where("age > ?", 10).Limit(true, 1, 3).String()
+	// SELECT id, name, age FROM UserInfo WHERE age > 10 LIMIT 3 OFFSET 1
+	sql2 := gsql.Select().From(UserInfo{}).Where("age > ?", 10).Limit(true, 1, 3)
 
 	t.Log(sql2)
 
