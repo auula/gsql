@@ -9,25 +9,37 @@ import (
 
 type Query struct {
 	PrimaryKey     string
-	Obj            interface{}
-	IsSQLLimit     bool
 	TableName      string
 	DBType         int
 	SelectColumns  *strings.Builder
 	ConditionSQL   *strings.Builder
 	OrderBySQL     *strings.Builder
-	Parameter      []interface{}
+	SQLLimit       *strings.Builder
 	ExcludeColumns []string
 	Err            error
 }
 
+type Rows struct {
+	Field string
+	Sort  string
+}
+
 type Action interface {
 	Where
+	Limit
 	Builder
 	In(column string, values ...interface{}) Builder
 	One() (error, string)
 	ById(id int) Builder
 	ByIds(ids ...int) Builder
+}
+
+type Limit interface {
+	Limit(offset bool, index, row int) Builder
+}
+
+type Order interface {
+	Order(rows []Rows) Action
 }
 
 // Builder generate structured query language code string
@@ -50,9 +62,9 @@ type Where interface {
 
 func Select() From {
 	return &Query{
-		IsSQLLimit:     false,
 		TableName:      "",
 		DBType:         0,
+		SQLLimit:       new(strings.Builder),
 		SelectColumns:  new(strings.Builder),
 		ConditionSQL:   new(strings.Builder),
 		OrderBySQL:     new(strings.Builder),
@@ -63,9 +75,9 @@ func Select() From {
 func SelectAs(values []string) From {
 
 	s := &Query{
-		IsSQLLimit:     false,
 		TableName:      "",
 		DBType:         0,
+		SQLLimit:       new(strings.Builder),
 		SelectColumns:  new(strings.Builder),
 		ConditionSQL:   new(strings.Builder),
 		OrderBySQL:     new(strings.Builder),
@@ -84,10 +96,29 @@ func SelectAs(values []string) From {
 	return s
 }
 
+func (q *Query) Limit(offset bool, index, row int) Builder {
+
+	if q.SQLLimit != nil {
+
+		if offset {
+			q.SQLLimit.WriteString(fmt.Sprintf("%v OFFSET %v", row, index))
+			return q
+		}
+
+		q.SQLLimit.WriteString(fmt.Sprintf("%v,%v", index, row))
+	}
+
+	return q
+}
+
+func (q *Query) Order(rows []Rows) Action {
+	panic("implement me")
+}
+
 func (q *Query) From(model interface{}) Action {
 	ty := reflect.TypeOf(model)
 	q.TableName = ty.Name()
-	if q.SelectColumns != nil && q.SelectColumns.String() == "" {
+	if q.SelectColumns != nil {
 		for i := 0; i < ty.NumField(); i++ {
 
 			if pkColumn := ty.Field(i).Tag.Get("pk"); pkColumn != "" {
@@ -103,8 +134,6 @@ func (q *Query) From(model interface{}) Action {
 			q.SelectColumns.WriteString(", ")
 		}
 	}
-
-	q.Obj = model
 
 	return q
 }
@@ -162,7 +191,7 @@ func (q *Query) In(column string, values ...interface{}) Builder {
 		}
 		buf.WriteString(", ")
 	}
-	if q.ConditionSQL != nil && q.ConditionSQL.String() == "" {
+	if q.ConditionSQL != nil {
 		q.ConditionSQL.WriteString(fmt.Sprintf(" %s IN (%v)", column, buf))
 	}
 
@@ -179,7 +208,7 @@ func (q *Query) One() (error, string) {
 
 func (q *Query) ById(id int) Builder {
 
-	if q.ConditionSQL != nil && q.ConditionSQL.String() == "" {
+	if q.ConditionSQL != nil {
 		q.ConditionSQL.WriteString(fmt.Sprintf(" %s = %d", q.PrimaryKey, id))
 	}
 
@@ -197,7 +226,7 @@ func (q *Query) ByIds(ids ...int) Builder {
 		}
 		buf.WriteString(", ")
 	}
-	if q.ConditionSQL != nil && q.ConditionSQL.String() == "" {
+	if q.ConditionSQL != nil {
 		q.ConditionSQL.WriteString(fmt.Sprintf(" %s IN (%v)", q.PrimaryKey, buf))
 	}
 
@@ -209,7 +238,7 @@ func (q *Query) Build() (error, string) {
 	sql := new(strings.Builder)
 	sql.WriteString("SELECT ")
 
-	if q.SelectColumns.String() != "" && q.SelectColumns != nil {
+	if q.SelectColumns.Len() > 0 {
 		sql.WriteString(q.SelectColumns.String())
 	}
 
@@ -219,9 +248,14 @@ func (q *Query) Build() (error, string) {
 
 	sql.WriteString(fmt.Sprintf(" FROM %s", q.TableName))
 
-	if q.ConditionSQL.String() != "" && q.ConditionSQL != nil {
+	if q.ConditionSQL.Len() > 0 {
 		sql.WriteString(" WHERE ")
 		sql.WriteString(q.ConditionSQL.String())
+	}
+
+	if q.SQLLimit.Len() > 0 {
+		sql.WriteString(" LIMIT ")
+		sql.WriteString(q.SQLLimit.String())
 	}
 
 	return nil, sql.String()
