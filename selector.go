@@ -286,6 +286,7 @@ func (q *Query) Build() (error, string) {
 func (q *Query) String() string {
 	err, s := q.Build()
 	if err != nil {
+
 		return ""
 	}
 	return s
