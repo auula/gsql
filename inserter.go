@@ -77,10 +77,6 @@ func (e *Execute) Values(v ...interface{}) Builder {
 	return e
 }
 
-func (e *Execute) From(m interface{}) Action {
-	panic("implement me")
-}
-
 func (e *Execute) Build() (error, string) {
 
 	sql := new(strings.Builder)
