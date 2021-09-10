@@ -26,6 +26,7 @@ type Query struct {
 	SQLLimit       *strings.Builder
 	ExcludeColumns []string
 	Err            error
+	Skip           bool
 }
 
 type Rows struct {
@@ -90,14 +91,20 @@ func SelectAs(values []string) From {
 		ExcludeColumns: make([]string, 0),
 	}
 
-	for i, v := range values {
+	s.PrimaryKey = values[len(values)-1]
+
+	column := make([]string, 0, len(values)-1)
+	column = append(column, values[:len(values)-1]...)
+
+	for i, v := range column {
 		s.SelectColumns.WriteString(v)
-		if i == len(values)-1 {
-			s.PrimaryKey = v
+		if i == len(column)-1 {
 			break
 		}
 		s.SelectColumns.WriteString(", ")
 	}
+
+	s.Skip = true
 
 	return s
 }
@@ -135,6 +142,9 @@ func (q *Query) Order(rows []Rows) Action {
 func (q *Query) From(model interface{}) Action {
 	ty := reflect.TypeOf(model)
 	q.TableName = ty.Name()
+	if q.Skip {
+		return q
+	}
 	if q.SelectColumns != nil {
 		for i := 0; i < ty.NumField(); i++ {
 
@@ -145,9 +155,11 @@ func (q *Query) From(model interface{}) Action {
 			}
 
 			q.SelectColumns.WriteString(ty.Field(i).Tag.Get("db"))
+
 			if i == ty.NumField()-1 {
 				break
 			}
+
 			q.SelectColumns.WriteString(", ")
 		}
 	}
