@@ -42,11 +42,9 @@ func Insert(model interface{}, filter []string) Into {
 
 	for i := 0; i < typeOf.NumField(); i++ {
 
-		if filter != nil {
-			for _, c := range filter {
-				if c == typeOf.Field(i).Tag.Get("db") {
-					continue
-				}
+		if filter != nil && i < len(filter) {
+			if typeOf.Field(i).Tag.Get("db") == filter[i] {
+				continue
 			}
 		}
 
@@ -65,7 +63,7 @@ func (e *Execute) Values(v ...interface{}) Builder {
 	for _, value := range v {
 		switch value.(type) {
 		case string:
-			e.Value = append(e.Value, value.(string))
+			e.Value = append(e.Value, fmt.Sprintf("'%s'", value.(string)))
 		case float64:
 			e.Value = append(e.Value, fmt.Sprintf("%v", value))
 		case int:
@@ -95,7 +93,7 @@ func (e *Execute) Build() (error, string) {
 			columnsSql.WriteString(", ")
 		}
 
-		sql.WriteString(fmt.Sprintf("(%v)", columnsSql))
+		sql.WriteString(fmt.Sprintf(" (%v)", columnsSql))
 
 	}
 
