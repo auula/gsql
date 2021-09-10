@@ -238,7 +238,7 @@ func (q *Query) One() (error, string) {
 func (q *Query) ById(id int) Builder {
 
 	if q.ConditionSQL != nil {
-		q.ConditionSQL.WriteString(fmt.Sprintf(" %s = %d", q.PrimaryKey, id))
+		q.ConditionSQL.WriteString(fmt.Sprintf("%s = %d", q.PrimaryKey, id))
 	}
 
 	return q
