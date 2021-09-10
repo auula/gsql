@@ -62,7 +62,7 @@ sql := gsql.Select().From(UserInfo{}).In("age", 21, 19, 28)
 t.Log(sql)
 ```
 
-6. query a piece of data
+6. Query a piece of data
 
 ```go
 func TestSelectOne(t *testing.T) {
