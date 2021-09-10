@@ -30,7 +30,7 @@ func Insert(model interface{}, filter []string) Into {
 
 	for i := 0; i < typeOf.NumField(); i++ {
 
-		if len(filter) > 0 {
+		if len(filter) > 0 && filter != nil {
 			for _, c := range filter {
 				if c == typeOf.Field(i).Tag.Get("db") {
 					continue
