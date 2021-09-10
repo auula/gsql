@@ -17,11 +17,11 @@ func TestSelect(t *testing.T) {
 	sql1 := gsql.Select().From(UserInfo{})
 	t.Log(sql1)
 
-	// SELECT id, name AS '名字', age, id FROM UserInfo WHERE id = 1
+	// SELECT name, age AS '年龄' FROM UserInfo WHERE  id = 2
 	sql2 := gsql.SelectAs([]string{"name", gsql.As("age", "年龄"), "id"}).From(UserInfo{}).ById(2)
 	t.Log(sql2)
 
-	// SELECT id, name AS '名字', age, id FROM UserInfo WHERE id = 1
+	// SELECT id, name AS '名字', age FROM UserInfo WHERE  id = 1
 	sql3 := gsql.SelectAs(gsql.Alias(UserInfo{}, map[string]string{
 		"name": "名字",
 	})).From(UserInfo{}).ById(1)
