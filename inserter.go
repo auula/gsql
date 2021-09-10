@@ -3,6 +3,7 @@ package gsql
 import "reflect"
 
 type Inserter interface {
+	Into
 }
 
 type Into interface {
@@ -30,7 +31,7 @@ func Insert(model interface{}, filter []string) Into {
 
 	for i := 0; i < typeOf.NumField(); i++ {
 
-		if len(filter) > 0 && filter != nil {
+		if filter != nil {
 			for _, c := range filter {
 				if c == typeOf.Field(i).Tag.Get("db") {
 					continue
