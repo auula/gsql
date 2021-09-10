@@ -127,7 +127,6 @@ func (e *Execute) Build() (error, string) {
 func (e *Execute) String() string {
 	err, s := e.Build()
 	if err != nil {
-
 		return ""
 	}
 	return s
