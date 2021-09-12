@@ -264,6 +264,10 @@ func (q *Query) ByIds(ids ...int) Builder {
 
 func (q *Query) Build() (error, string) {
 
+	if q.Err != nil {
+		return q.Err, ""
+	}
+
 	sql := new(strings.Builder)
 	sql.WriteString("SELECT ")
 
