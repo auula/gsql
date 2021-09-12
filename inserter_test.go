@@ -1,8 +1,9 @@
 package gsql_test
 
 import (
-	"github.com/auula/gsql"
 	"testing"
+
+	"github.com/auula/gsql"
 )
 
 func TestInsert(t *testing.T) {

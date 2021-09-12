@@ -41,15 +41,15 @@ func Insert(model interface{}, filter []string) Into {
 	e.TableName = typeOf.Name()
 
 	for i := 0; i < typeOf.NumField(); i++ {
+		e.Columns = append(e.Columns, typeOf.Field(i).Tag.Get("db"))
+	}
 
-		if filter != nil && i < len(filter) {
-			if typeOf.Field(i).Tag.Get("db") == filter[i] {
-				continue
+	for i := 0; i < len(e.Columns); i++ {
+		for _, v := range filter {
+			if e.Columns[i] == v {
+				e.Columns = append(e.Columns[:i], e.Columns[i+1:]...)
 			}
 		}
-
-		e.Columns = append(e.Columns, typeOf.Field(i).Tag.Get("db"))
-
 	}
 
 	return e
